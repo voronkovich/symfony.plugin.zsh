@@ -68,6 +68,8 @@ _symfony_find_console() {
 }
 
 _symfony_get_commands() {
+    [[ -z $1 ]] && return 1;
+
     $1 --no-ansi list | \
         sed -nr \
         -e '1,/Available commands/d' \
@@ -119,7 +121,7 @@ _symfony_installer() {
         '(-V|--version)'{-V,--version}'[Display this application version]' \
         '(-h|--help)'{-h,--help}'[Display a help message]' \
         '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
-        '(-q|--quiet)'{-q,--quiet}'[ Do not output any message]' \
+        '(-q|--quiet)'{-q,--quiet}'[Do not output any message]' \
         '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
         '-vv[More verbose output]' \
         '-vvv[The verbosest output: debug]' \
@@ -131,18 +133,14 @@ _symfony_installer() {
 }
 
 _symfony_console() {
-    console=$(_symfony_find_console);
-
-    [[ ! $? -eq 0 ]] && return 1;
-
-    commands_list=$(_symfony_get_commands "$console" | sed -rn 's/:([^"])/\\\\\\:\1/gp');
+    commands_list=$(_symfony_get_commands "$(_symfony_find_console)" | sed -rn 's/:([^"])/\\\\\\:\1/gp');
 
     _arguments -s -w \
         '(-V|--version)'{-V,--version}'[Display this application version]' \
         '(-e|--env)'{-e,--env}'=[The Environment name (default: "dev")]:::("dev" "prod" "test")' \
         '(-h|--help)'{-h,--help}'[Display a help message]' \
         '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
-        '(-q|--quiet)'{-q,--quiet}'[ Do not output any message]' \
+        '(-q|--quiet)'{-q,--quiet}'[Do not output any message]' \
         '(-s|--shell)'{-s,--shell}'[Launch the shell]' \
         '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
         '-vv[More verbose output]' \
