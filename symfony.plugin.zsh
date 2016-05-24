@@ -1,4 +1,29 @@
-alias sf='`_symfony_find_console`';
+alias sfsh='sf --shell';
+alias sfprod='sf --env=prod';
+alias sfdev='sf --env=dev';
+alias sfnew='symfony new';
+
+sf() {
+    console=$(_symfony_find_console);
+
+    if [[ $? -eq 0 ]]; then
+        $console $@;
+    else
+        echo "Symfony console not found" >&2;
+    fi
+}
+
+sfservice() {
+    sf debug:container $@
+}
+
+sfroute() {
+    sf debug:router $@
+}
+
+sfconfig() {
+    sf debug:config $@
+}
 
 symfony-get-installer() {
     save_to="${1:-.}/symfony";
@@ -20,20 +45,22 @@ _symfony_find_console() {
         if [[ -f "$dir/bin/console" ]]; then
             # Symfony 3
             echo "$dir/bin/console";
-            break;
+            return 0;
         elif [[ -f "$dir/app/console" ]]; then
             # Symfony 2
             echo "$dir/app/console";
-            break;
+            return 0;
         fi
 
         [[ "$dir" == '' ]] && break;
 
         dir="${dir%/*}";
     done
+
+    return 1;
 }
 
-_symfony_get_command_list() {
+_symfony_get_commands() {
     $1 --no-ansi list | \
         sed -nr \
         -e '1,/Available commands/d' \
@@ -41,8 +68,46 @@ _symfony_get_command_list() {
     ;
 }
 
+_symfony_get_items() {
+    # $1 --no-ansi $2 | sed -nr 's/^  ?([^-[:space:]A-Z][^[:space:]]+) .*$/\1/p';
+    $1 --no-ansi $2 | sed -nr 's/^  ?([a-z_][^[:space:]]+) .*$/\1/p';
+}
+
+_symfony_get_services() {
+    console=${1-$(_symfony_find_console)};
+
+    if [[ $? -eq 0 ]]; then
+        _symfony_get_items "$console" debug:container;
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+_symfony_get_routes() {
+    console=${1-$(_symfony_find_console)};
+
+    if [[ $? -eq 0 ]]; then
+        _symfony_get_items "$console" debug:router;
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+_symfony_get_config_keys() {
+    console=${1-$(_symfony_find_console)};
+
+    if [[ $? -eq 0 ]]; then
+        "$console" debug:config |  sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p';
+        return 0;
+    else
+        return 1;
+    fi
+}
+
 _symfony_installer() {
-    commands_list=$(_symfony_get_command_list symfony);
+    commands_list=$(_symfony_get_commands symfony);
 
     _arguments -s -w \
         '(-V|--version)'{-V,--version}'[Display this application version]' \
@@ -60,7 +125,7 @@ _symfony_installer() {
 }
 
 _symfony_console() {
-    commands_list=$(_symfony_get_command_list "$(_symfony_find_console)" | sed -rne 's/:([^"])/\\\\\\:\1/gp');
+    commands_list=$(_symfony_get_commands "$(_symfony_find_console)" | sed -rne 's/:([^"])/\\\\\\:\1/gp');
 
     _arguments -s -w \
         '(-V|--version)'{-V,--version}'[Display this application version]' \
@@ -81,9 +146,22 @@ _symfony_console() {
         && return 0;
 }
 
-compdef _symfony_installer symfony;
+_symfony_console_debug_config() {
+    compadd `_symfony_get_config_keys`;
+}
 
-compdef _symfony_console '`_symfony_find_console`';
+_symfony_console_debug_container() {
+    compadd `_symfony_get_services`;
+}
+
+_symfony_console_debug_router() {
+    compadd `_symfony_get_routes`;
+}
+
+compdef _symfony_installer 'symfony';
+compdef _symfony_console_debug_config 'sfconfig';
+compdef _symfony_console_debug_container 'sfservice';
+compdef _symfony_console_debug_router 'sfroute';
 compdef _symfony_console 'app/console';
 compdef _symfony_console 'bin/console';
 compdef _symfony_console 'sf';
