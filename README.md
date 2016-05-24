@@ -35,6 +35,10 @@ This plugin provides some usefull commands and shortcuts:
 
 Also this plugin provides a commands and some options autocompletion for both Symfony's console and installer.
 
+## Ascii movie
+
+[![asciicast](https://asciinema.org/a/b1fmfnbzr1w9z3ec66c5ie50t.png)](https://asciinema.org/a/b1fmfnbzr1w9z3ec66c5ie50t)
+
 ## License
 
 Copyright (c) Voronkovich Oleg. Distributed under the MIT.
