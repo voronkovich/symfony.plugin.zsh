@@ -73,7 +73,21 @@ _symfony_get_commands() {
     $1 --no-ansi list | \
         sed -nr \
         -e '1,/Available commands/d' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/\1:"\2"/p' \
+        -e 's/:/\\\:/g' \
+        -e 's/^  ?([^[:space:]]+) +(.*)$/"\1"/p'
+        tr '\n' ' ' \
+    ;
+}
+
+_symfony_get_options() {
+    ([[ -z $1 ]] || [[ -z $2 ]]) && return 1;
+
+    $1 --no-ansi $2 --help | \
+        sed -nr \
+        -e '1,/^Options/d' \
+        -e '/^$/,$d' \
+        -e 's/^.*(--[^=\[[:space:]]+=?).*/\1:/p' | \
+        tr '\n ' ' ' \
     ;
 }
 
@@ -115,43 +129,43 @@ _symfony_get_config_keys() {
 }
 
 _symfony_installer() {
-    commands_list=$(_symfony_get_commands symfony);
 
-    _arguments -s -w \
-        '(-V|--version)'{-V,--version}'[Display this application version]' \
-        '(-h|--help)'{-h,--help}'[Display a help message]' \
-        '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
-        '(-q|--quiet)'{-q,--quiet}'[Do not output any message]' \
-        '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
-        '-vv[More verbose output]' \
-        '-vvv[The verbosest output: debug]' \
-        '--ansi[Force ANSI output]' \
-        '--no-ansi[Disable ANSI output]' \
-        "1:command:(($commands_list))" \
-        '*:file:_files -/' \
-        && return 0;
+    local curcontext="$curcontext" state line _packages _opts ret=1
+
+    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0;
+
+    case $state in
+        cmds)
+            cmds_list=`_symfony_get_commands symfony`;
+            eval _values $cmds_list && ret=0;
+            ;;
+        args)
+            opts_list=`_symfony_get_options symfony $line[1]`;
+            eval _arguments $opts_list && ret=0;
+            ;;
+    esac;
+
+    return ret;
 }
 
 _symfony_console() {
-    commands_list=$(_symfony_get_commands "$(_symfony_find_console)" | sed -rn 's/:([^"])/\\\\\\:\1/gp');
 
-    _arguments -s -w \
-        '(-V|--version)'{-V,--version}'[Display this application version]' \
-        '(-e|--env)'{-e,--env}'=[The Environment name (default: "dev")]:::("dev" "prod" "test")' \
-        '(-h|--help)'{-h,--help}'[Display a help message]' \
-        '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
-        '(-q|--quiet)'{-q,--quiet}'[Do not output any message]' \
-        '(-s|--shell)'{-s,--shell}'[Launch the shell]' \
-        '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
-        '-vv[More verbose output]' \
-        '-vvv[The verbosest output: debug]' \
-        '--ansi[Force ANSI output]' \
-        '--no-ansi[Disable ANSI output]' \
-        '--no-debug[Switches off debug mode]' \
-        '--process-isolation[Launch commands from shell as a separate process]' \
-        "1:command:(($commands_list))" \
-        '*:file:_files -/' \
-        && return 0;
+    local curcontext="$curcontext" state line _packages _opts ret=1
+
+    _arguments -s -w  '1: :->cmds' '*:: :->args' && ret=0;
+
+    case $state in
+        cmds)
+            cmds_list=`_symfony_get_commands "$(_symfony_find_console)" | tr '\n' ' '`;
+            eval _values $cmds_list && ret=0;
+            ;;
+        args)
+            opts_list=`_symfony_get_options "$(_symfony_find_console)" $line[1]`;
+            eval _arguments $opts_list && ret=0;
+            ;;
+    esac;
+
+    return ret;
 }
 
 _symfony_console_debug_config() {
