@@ -2,6 +2,9 @@ alias sfsh='sf --shell';
 alias sfprod='sf --env=prod';
 alias sfdev='sf --env=dev';
 alias sfnew='symfony new';
+alias sfstart='sf server:start';
+alias sfrun='sf server:start';
+alias sfstop='sf server:stop';
 
 sf() {
     console=$(_symfony_find_console);
@@ -23,6 +26,10 @@ sfroute() {
 
 sfconfig() {
     sf debug:config $@
+}
+
+sfhelp() {
+    sf help $@
 }
 
 symfony-get-installer() {
@@ -69,7 +76,6 @@ _symfony_get_commands() {
 }
 
 _symfony_get_items() {
-    # $1 --no-ansi $2 | sed -nr 's/^  ?([^-[:space:]A-Z][^[:space:]]+) .*$/\1/p';
     $1 --no-ansi $2 | sed -nr 's/^  ?([a-z_][^[:space:]]+) .*$/\1/p';
 }
 
@@ -125,7 +131,11 @@ _symfony_installer() {
 }
 
 _symfony_console() {
-    commands_list=$(_symfony_get_commands "$(_symfony_find_console)" | sed -rne 's/:([^"])/\\\\\\:\1/gp');
+    console=$(_symfony_find_console);
+
+    [[ ! $? -eq 0 ]] && return 1;
+
+    commands_list=$(_symfony_get_commands "$console" | sed -rn 's/:([^"])/\\\\\\:\1/gp');
 
     _arguments -s -w \
         '(-V|--version)'{-V,--version}'[Display this application version]' \
@@ -165,3 +175,4 @@ compdef _symfony_console_debug_router 'sfroute';
 compdef _symfony_console 'app/console';
 compdef _symfony_console 'bin/console';
 compdef _symfony_console 'sf';
+compdef _symfony_console 'sfhelp';
