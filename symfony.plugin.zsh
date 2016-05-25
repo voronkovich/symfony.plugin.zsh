@@ -73,8 +73,9 @@ _symfony_get_commands() {
     $1 --no-ansi list | \
         sed -nr \
         -e '1,/Available commands/d' \
+        -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/\1/p' \
+        -e 's/^  ?([^[:space:]]+) +(.*)$/"\1[\2]"/p' \
     ;
 }
 
@@ -86,7 +87,9 @@ _symfony_get_options() {
         -e '1,/^Options/d' \
         -e '/^Help/,$d' \
         -e '/^ +-h, .*$/,$d' \
-        -e 's/^.*(--[^=\[[:space:]]+=?).*$/\1:/p' \
+        -e 's/([[]|[]])/\\\1/g' \
+        -e 's/:/\\\:/g' \
+        -e 's/^.*(--[^=\[[:space:]]+=?)[^[:space:]]*[[:space:]]*(.*)$/"\1[\2]"/p' \
     ;
 }
 
@@ -156,11 +159,11 @@ _symfony_console() {
     case $state in
         cmds)
             cmds_list=(`_symfony_get_commands "$(_symfony_find_console)"`);
-            _values $cmds_list && ret=0;
+            eval _values $cmds_list && ret=0;
             ;;
         args)
             opts_list=(`_symfony_get_options "$(_symfony_find_console)" $line[1]`);
-            _arguments $opts_list && ret=0;
+            eval _arguments $opts_list && ret=0;
             ;;
     esac;
 
