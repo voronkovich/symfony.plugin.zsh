@@ -37,7 +37,7 @@ Also this plugin provides a commands and some options autocompletion for both Sy
 
 ## Ascii movie
 
-[![asciicast](https://asciinema.org/a/b1fmfnbzr1w9z3ec66c5ie50t.png)](https://asciinema.org/a/b1fmfnbzr1w9z3ec66c5ie50t)
+[![asciicast](https://asciinema.org/a/03shcf05p1wz0ppg2dambztig.png)](https://asciinema.org/a/03shcf05p1wz0ppg2dambztig)
 
 ## License
 
