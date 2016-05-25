@@ -86,7 +86,7 @@ _symfony_get_options() {
         sed -nr \
         -e '1,/^Options/d' \
         -e '/^Help/,$d' \
-        -e '/^ +-h, .*$/,$d' \
+        -e '/^.*--help.*$/,$d' \
         -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
         -e 's/^.*(--[^=\[[:space:]]+=?)[^[:space:]]*[[:space:]]*(.*)$/"\1[\2]"/p' \
@@ -134,7 +134,19 @@ _symfony_installer() {
 
     local curcontext="$curcontext" state line _packages _opts ret=1
 
-    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0;
+    _arguments -s -w \
+        '(-V|--version)'{-V,--version}'[Display this application version]' \
+        '(-h|--help)'{-h,--help}'[Display a help message]' \
+        '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
+        '(-q|--quiet)'{-q,--quiet}'[ Do not output any message]' \
+        '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
+        '-vv[More verbose output]' \
+        '-vvv[The verbosest output: debug]' \
+        '--ansi[Force ANSI output]' \
+        '--no-ansi[Disable ANSI output]' \
+        '1: :->cmds' \
+        '*:: :->args' \
+        && ret=0;
 
     case $state in
         cmds)
@@ -154,7 +166,23 @@ _symfony_console() {
 
     local curcontext="$curcontext" state line _packages _opts ret=1
 
-    _arguments -s -w  '1: :->cmds' '*:: :->args' && ret=0;
+    _arguments -s -w \
+        '(-V|--version)'{-V,--version}'[Display this application version]' \
+        '(-e|--env)'{-e,--env}'=[The Environment name (default: "dev")]:::("dev" "prod" "test")' \
+        '(-h|--help)'{-h,--help}'[Display a help message]' \
+        '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
+        '(-q|--quiet)'{-q,--quiet}'[ Do not output any message]' \
+        '(-s|--shell)'{-s,--shell}'[Launch the shell]' \
+        '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
+        '-vv[More verbose output]' \
+        '-vvv[The verbosest output: debug]' \
+        '--ansi[Force ANSI output]' \
+        '--no-ansi[Disable ANSI output]' \
+        '--no-debug[Switches off debug mode]' \
+        '--process-isolation[Launch commands from shell as a separate process]' \
+        '1: :->cmds' \
+        '*:: :->args' \
+        && ret=0;
 
     case $state in
         cmds)
