@@ -74,7 +74,7 @@ _symfony_get_commands() {
         sed -nr \
         -e '1,/Available commands/d' \
         -e 's/:/\\\:/g' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/"\1"/p'
+        -e 's/^  ?([^[:space:]]+) +(.*)$/\1/p' | \
         tr '\n' ' ' \
     ;
 }
@@ -136,12 +136,12 @@ _symfony_installer() {
 
     case $state in
         cmds)
-            cmds_list=`_symfony_get_commands symfony`;
-            eval _values $cmds_list && ret=0;
+            cmds_list=(`_symfony_get_commands symfony`);
+            _values $cmds_list && ret=0;
             ;;
         args)
-            opts_list=`_symfony_get_options symfony $line[1]`;
-            eval _arguments $opts_list && ret=0;
+            opts_list=(`_symfony_get_options symfony $line[1]`);
+            _arguments $opts_list && ret=0;
             ;;
     esac;
 
@@ -156,12 +156,12 @@ _symfony_console() {
 
     case $state in
         cmds)
-            cmds_list=`_symfony_get_commands "$(_symfony_find_console)" | tr '\n' ' '`;
-            eval _values $cmds_list && ret=0;
+            cmds_list=(`_symfony_get_commands "$(_symfony_find_console)"`);
+            _values $cmds_list && ret=0;
             ;;
         args)
-            opts_list=`_symfony_get_options "$(_symfony_find_console)" $line[1]`;
-            eval _arguments $opts_list && ret=0;
+            opts_list=(`_symfony_get_options "$(_symfony_find_console)" $line[1]`);
+            _arguments $opts_list && ret=0;
             ;;
     esac;
 
