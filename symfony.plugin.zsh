@@ -74,8 +74,7 @@ _symfony_get_commands() {
         sed -nr \
         -e '1,/Available commands/d' \
         -e 's/:/\\\:/g' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/\1/p' | \
-        tr '\n' ' ' \
+        -e 's/^  ?([^[:space:]]+) +(.*)$/\1/p' \
     ;
 }
 
@@ -86,8 +85,7 @@ _symfony_get_options() {
         sed -nr \
         -e '1,/^Options/d' \
         -e '/^$/,$d' \
-        -e 's/^.*(--[^=\[[:space:]]+=?).*/\1:/p' | \
-        tr '\n ' ' ' \
+        -e 's/^.*(--[^=\[[:space:]]+=?).*/\1:/p' \
     ;
 }
 
