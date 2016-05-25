@@ -84,8 +84,9 @@ _symfony_get_options() {
     $1 --no-ansi $2 --help | \
         sed -nr \
         -e '1,/^Options/d' \
-        -e '/^$/,$d' \
-        -e 's/^.*(--[^=\[[:space:]]+=?).*/\1:/p' \
+        -e '/^Help/,$d' \
+        -e '/^ +-h, .*$/,$d' \
+        -e 's/^.*(--[^=\[[:space:]]+=?).*$/\1:/p' \
     ;
 }
 
