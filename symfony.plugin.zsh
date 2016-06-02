@@ -3,7 +3,7 @@ alias sfprod='sf --env=prod';
 alias sfdev='sf --env=dev';
 alias sfnew='symfony new';
 alias sfstart='sf server:start';
-alias sfrun='sf server:start';
+alias sfrun='sf server:run -vvv';
 alias sfstop='sf server:stop';
 
 sf() {
