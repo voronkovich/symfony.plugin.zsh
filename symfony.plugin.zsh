@@ -6,6 +6,8 @@ alias sfstart='sf server:start';
 alias sfrun='sf server:run -vvv';
 alias sfstop='sf server:stop';
 
+alias encore='node_modules/.bin/encore';
+
 sf() {
     console=$(_symfony_find_console);
 
