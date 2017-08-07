@@ -75,15 +75,16 @@ flex() {
 encore() {
     pwd=$(pwd);
     if [[ ! -f "$(pwd)/node_modules/.bin/encore" ]]; then
-        echo  -e "
+        echo  "
 Encore is not found. Install it by using one of these commands:
 
 yarn add @symfony/webpack-encore --dev
 
 npm install @symfony/webpack-encore --save-dev
 
-flex webpack-encore
-        ";
+flex webpack-encore" >&2;
+
+        return 1;
     fi
 
     "$pwd/node_modules/.bin/encore" $*;
