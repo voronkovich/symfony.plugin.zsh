@@ -265,7 +265,7 @@ _symfony_flex() {
 export SYMFONY_FLEX_ALIASES='';
 _symfony_flex_load_aliases() {
     if [[ "$SYMFONY_FLEX_ALIASES" == '' ]]; then
-        echo "\nLoading packages info from symfony.sh ...";
+        echo "\nLoading information about available packages from symfony.sh ...";
         SYMFONY_FLEX_ALIASES=$(curl -sf 'https://symfony.sh/aliases.json' | tr -s '{}:,"' ' ' | xargs -n1 | sort -u);
     fi
 }
