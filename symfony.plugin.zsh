@@ -45,6 +45,36 @@ symfony-get-installer() {
     curl -LsS https://symfony.com/installer -o "$save_to" && chmod a+x "$save_to";
 }
 
+flex() {
+    if [[ $# -eq 0 ]]; then
+        echo -en "
+\e[32mSymfony Flex Helper\e[0m by your best friend Oleg Voronkovich
+
+\e[33mUsage:\e[0m
+
+    \e[32mflex\e[0m new      Create a new Symfony project in the current dir
+    \e[32mflex\e[0m PACKAGES Install a set of listed packages
+
+\e[33mExamples:\e[0m
+
+    \e[32mflex\e[0m new
+    \e[32mflex\e[0m new 3.3
+
+    \e[32mflex\e[0m api admin
+    \e[32mflex\e[0m cli:dev-master
+"
+        return 0;
+    fi
+
+    if [[ "$1" == 'new' ]]; then
+        composer create-project symfony/skeleton . $2;
+    else
+        composer require $@;
+    fi
+}
+
+export SYMFONY_FLEX_ALIASES='';
+
 _symfony_find_console() {
     dir="$PWD";
 
@@ -212,6 +242,19 @@ _symfony_console_debug_router() {
     compadd `_symfony_get_routes`;
 }
 
+_symfony_flex() {
+    _symfony_flex_load_aliases;
+    compadd 'new';
+    compadd $(echo $SYMFONY_FLEX_ALIASES);
+}
+
+_symfony_flex_load_aliases() {
+    if [[ "$SYMFONY_FLEX_ALIASES" == '' ]]; then
+        echo "\nLoading packages info from symfony.sh ...";
+        SYMFONY_FLEX_ALIASES=$(curl -sf 'https://symfony.sh/aliases.json' | tr -s '{}:,"' ' ' | xargs -n1 | sort -u);
+    fi
+}
+
 compdef _symfony_installer 'symfony';
 compdef _symfony_console_debug_config 'sfconfig';
 compdef _symfony_console_debug_container 'sfservice';
@@ -220,3 +263,4 @@ compdef _symfony_console 'app/console';
 compdef _symfony_console 'bin/console';
 compdef _symfony_console 'sf';
 compdef _symfony_console 'sfhelp';
+compdef _symfony_flex 'flex';
