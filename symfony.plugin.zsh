@@ -5,8 +5,7 @@ alias sfnew='symfony new';
 alias sfstart='sf server:start';
 alias sfrun='sf server:run -vvv';
 alias sfstop='sf server:stop';
-
-alias encore='node_modules/.bin/encore';
+alias encore-watch='encore dev --watch'
 
 sf() {
     console=$(_symfony_find_console);
@@ -73,7 +72,22 @@ flex() {
     fi
 }
 
-export SYMFONY_FLEX_ALIASES='';
+encore() {
+    pwd=$(pwd);
+    if [[ ! -f "$(pwd)/node_modules/.bin/encore" ]]; then
+        echo  -e "
+Encore is not found. Install it by using one of these commands:
+
+yarn add @symfony/webpack-encore --dev
+
+npm install @symfony/webpack-encore --save-dev
+
+flex webpack-encore
+        ";
+    fi
+
+    "$pwd/node_modules/.bin/encore" $*;
+}
 
 _symfony_find_console() {
     dir="$PWD";
@@ -248,11 +262,16 @@ _symfony_flex() {
     compadd $(echo $SYMFONY_FLEX_ALIASES);
 }
 
+export SYMFONY_FLEX_ALIASES='';
 _symfony_flex_load_aliases() {
     if [[ "$SYMFONY_FLEX_ALIASES" == '' ]]; then
         echo "\nLoading packages info from symfony.sh ...";
         SYMFONY_FLEX_ALIASES=$(curl -sf 'https://symfony.sh/aliases.json' | tr -s '{}:,"' ' ' | xargs -n1 | sort -u);
     fi
+}
+
+_symfony_encore() {
+    compadd 'dev' 'dev-server' 'production';
 }
 
 compdef _symfony_installer 'symfony';
@@ -264,3 +283,4 @@ compdef _symfony_console 'bin/console';
 compdef _symfony_console 'sf';
 compdef _symfony_console 'sfhelp';
 compdef _symfony_flex 'flex';
+compdef _symfony_encore 'encore';
