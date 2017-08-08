@@ -34,7 +34,7 @@ sfhelp() {
 }
 
 symfony-get-installer() {
-    save_to="${1:-.}/symfony";
+    local save_to="${1:-.}/symfony";
 
     if [[ -f "$save_to" ]]; then
         echo "Symfony installer script already exists: $save_to" >&2;
@@ -47,7 +47,7 @@ symfony-get-installer() {
 flex() {
     if [[ $# -eq 0 ]]; then
         echo -en "
-\e[32mSymfony Flex Helper\e[0m by your best friend Oleg Voronkovich
+\e[32mSymfony Flex Helper\e[0m by your best friend Oleg Voronkovich :)
 
 \e[33mUsage:\e[0m
 
@@ -73,8 +73,9 @@ flex() {
 }
 
 encore() {
-    pwd=$(pwd);
-    if [[ ! -f "$(pwd)/node_modules/.bin/encore" ]]; then
+    local pwd=$(pwd);
+
+    if [[ ! -f "$pwd/node_modules/.bin/encore" ]]; then
         echo  "
 Encore is not found. Install it by using one of these commands:
 
@@ -91,7 +92,7 @@ flex webpack-encore" >&2;
 }
 
 _symfony_find_console() {
-    dir="$PWD";
+    local dir="$PWD";
 
     # Upward search
     while ((1)); do
@@ -145,7 +146,7 @@ _symfony_get_items() {
 }
 
 _symfony_get_services() {
-    console=${1-$(_symfony_find_console)};
+    local console=${1-$(_symfony_find_console)};
 
     if [[ $? -eq 0 ]]; then
         _symfony_get_items "$console" debug:container;
@@ -156,7 +157,7 @@ _symfony_get_services() {
 }
 
 _symfony_get_routes() {
-    console=${1-$(_symfony_find_console)};
+    local console=${1-$(_symfony_find_console)};
 
     if [[ $? -eq 0 ]]; then
         _symfony_get_items "$console" debug:router;
@@ -167,7 +168,7 @@ _symfony_get_routes() {
 }
 
 _symfony_get_config_keys() {
-    console=${1-$(_symfony_find_console)};
+    local console=${1-$(_symfony_find_console)};
 
     if [[ $? -eq 0 ]]; then
         "$console" debug:config |  sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p';
