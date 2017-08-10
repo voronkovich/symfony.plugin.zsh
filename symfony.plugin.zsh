@@ -45,15 +45,15 @@ symfony-get-installer() {
 }
 
 flex() {
-    if [[ $# -eq 0 || "$1" =~ '^--?h(elp)?$' ]]; then
+    if [[ $# -eq 0 || "$1" =~ '^-h|--help$' ]]; then
         echo -en "
 \e[32mSymfony Flex Helper\e[0m by your best friend Oleg Voronkovich :)
 
 \e[33mUsage:\e[0m
 
-    \e[32mflex\e[0m new      Create a new Symfony project in the current dir
-    \e[32mflex\e[0m PACKAGES Install a set of listed packages
-    \e[32mflex\e[0m -l       List all available packages
+    \e[32mflex\e[0m new          Create a new Symfony project in the current dir
+    \e[32mflex\e[0m PACKAGES     Install a set of listed packages
+    \e[32mflex\e[0m -l [PATTERN] List all available packages
 
 \e[33mExamples:\e[0m
 
@@ -62,13 +62,24 @@ flex() {
 
     \e[32mflex\e[0m api admin
     \e[32mflex\e[0m cli:dev-master
+
+    \e[32mflex\e[0m -l adm
+
+    You can use any Composer option:
+
+    \e[32mflex\e[0m --ignore-platform-reqs process
 "
         return 0;
     fi
 
-    if [[ $# -eq 1 && "$1" =~ '^--?l(ist)?$' ]]; then
+    if [[ "$1" =~ '^-l|--list)?$' ]]; then
         _symfony_flex_load_aliases;
-        echo $SYMFONY_FLEX_ALIASES;
+
+        if [[ $# -eq 1 ]]; then
+            echo $SYMFONY_FLEX_ALIASES;
+        else
+            echo $SYMFONY_FLEX_ALIASES | grep "$2";
+        fi
 
         return 0;
     fi
