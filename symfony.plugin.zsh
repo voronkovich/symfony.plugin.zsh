@@ -5,7 +5,7 @@ alias sfnew='symfony new';
 alias sfstart='sf server:start';
 alias sfrun='sf server:run -vvv';
 alias sfstop='sf server:stop';
-alias sfstop='sf server:stop; sleep 0.5; sf server:start';
+alias sfrestart='sf server:stop; sleep 0.5; sf server:start';
 alias encore-watch='encore dev --watch'
 
 sf() {
