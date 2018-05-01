@@ -8,12 +8,13 @@ alias sfrestart='sf server:stop; sleep 0.5; sf server:start';
 alias encore-watch='encore dev --watch'
 
 sf() {
-    console=$(_symfony_find_console);
+    local console="$(_symfony_find_console)";
 
-    if [[ $? -eq 0 ]]; then
-        $console $@;
+    if [[ "$console" != "" ]]; then
+        command "$console" $@;
     else
         echo "Symfony console not found" >&2;
+        return 1;
     fi
 }
 
@@ -94,7 +95,7 @@ flex() {
 }
 
 encore() {
-    local pwd=$(pwd);
+    local pwd="$(pwd)";
 
     if [[ ! -f "$pwd/node_modules/.bin/encore" ]]; then
         echo  "
