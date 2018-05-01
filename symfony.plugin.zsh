@@ -282,8 +282,7 @@ _symfony_console_debug_router() {
 
 _symfony_flex() {
     _symfony_flex_load_aliases;
-    compadd 'new';
-    compadd 'new-site';
+    compadd 'new' 'new-site';
     compadd $(echo $SYMFONY_FLEX_ALIASES);
 }
 
