@@ -86,6 +86,8 @@ flex() {
 
     if [[ "$1" == 'new' ]]; then
         composer create-project symfony/skeleton . $2;
+    elif [[ "$1" == 'new-site' ]]; then
+        composer create-project symfony/website-skeleton . $2;
     else
         composer require $@;
     fi
@@ -280,6 +282,7 @@ _symfony_console_debug_router() {
 _symfony_flex() {
     _symfony_flex_load_aliases;
     compadd 'new';
+    compadd 'new-site';
     compadd $(echo $SYMFONY_FLEX_ALIASES);
 }
 
