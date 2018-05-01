@@ -1,4 +1,3 @@
-alias sfsh='sf --shell';
 alias sfprod='sf --env=prod';
 alias sfdev='sf --env=dev';
 alias sfnew='symfony new';
