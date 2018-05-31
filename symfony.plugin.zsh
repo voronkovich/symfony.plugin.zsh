@@ -52,7 +52,8 @@ flex() {
 
 \e[33mUsage:\e[0m
 
-    \e[32mflex\e[0m new          Create a new Symfony project in the current dir
+    \e[32mflex\e[0m new          Create a new Symfony project in the current dir using \"symfony/skeleton\"
+    \e[32mflex\e[0m new-site     Create a new Symfony project in the current dir using \"symfony/website-skeleton\"
     \e[32mflex\e[0m PACKAGES     Install a set of listed packages
     \e[32mflex\e[0m -l [PATTERN] List all available packages
 
