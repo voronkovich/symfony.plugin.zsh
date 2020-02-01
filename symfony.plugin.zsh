@@ -296,7 +296,7 @@ _symfony_flex_load_aliases() {
 }
 
 _symfony_encore() {
-    compadd 'dev' 'dev-server' 'production';
+    compadd 'dev' 'dev-server' 'prod' 'production';
 }
 
 compdef _symfony_installer 'symfony';
