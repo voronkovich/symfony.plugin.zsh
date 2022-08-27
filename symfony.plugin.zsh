@@ -40,17 +40,6 @@ sfhelp() {
     sf help $@
 }
 
-symfony-get-installer() {
-    local save_to="${1:-.}/symfony";
-
-    if [[ -f "$save_to" ]]; then
-        echo "Symfony installer script already exists: $save_to" >&2;
-        return 1;
-    fi
-
-    curl -LsS https://symfony.com/installer -o "$save_to" && chmod a+x "$save_to";
-}
-
 flex() {
     if [[ $# -eq 0 || "$1" =~ '^-h|--help$' ]]; then
         echo -en "
@@ -207,38 +196,6 @@ _symfony_get_config_keys() {
     fi
 }
 
-_symfony_installer() {
-
-    local curcontext="$curcontext" state line _packages _opts ret=1
-
-    _arguments -s -w \
-        '(-V|--version)'{-V,--version}'[Display this application version]' \
-        '(-h|--help)'{-h,--help}'[Display a help message]' \
-        '(-n|---no-interaction)'{-n,--no-interaction}'[Do not ask any interactive question]' \
-        '(-q|--quiet)'{-q,--quiet}'[ Do not output any message]' \
-        '(-v|--verbose)'{-v,--verbose}'[Increase the verbosity of messages]' \
-        '-vv[More verbose output]' \
-        '-vvv[The verbosest output: debug]' \
-        '--ansi[Force ANSI output]' \
-        '--no-ansi[Disable ANSI output]' \
-        '1: :->cmds' \
-        '*:: :->args' \
-        && ret=0;
-
-    case $state in
-        cmds)
-            cmds_list=(`_symfony_get_commands symfony`);
-            _values $cmds_list && ret=0;
-            ;;
-        args)
-            opts_list=(`_symfony_get_options symfony $line[1]`);
-            _arguments $opts_list && ret=0;
-            ;;
-    esac;
-
-    return ret;
-}
-
 _symfony_console() {
 
     local curcontext="$curcontext" state line _packages _opts ret=1
@@ -305,7 +262,6 @@ _symfony_encore() {
     compadd 'dev' 'dev-server' 'prod' 'production';
 }
 
-compdef _symfony_installer 'symfony';
 compdef _symfony_console_debug_config 'sfconfig';
 compdef _symfony_console_debug_container 'sfservice';
 compdef _symfony_console_debug_router 'sfroute';
