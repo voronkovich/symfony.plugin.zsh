@@ -8,14 +8,20 @@ alias sfrestart='sf server:stop; sleep 0.5; sf server:start';
 alias encore-watch='encore dev --watch'
 
 sf() {
-    local console="$(_symfony_find_console)";
+    if command -v symfony >/dev/null; then
+        symfony console "$@";
 
-    if [[ "$console" != "" ]]; then
-        command "$console" $@;
-    else
+        return
+    fi
+
+    if [[ -z "$console" ]]; then
         echo "Symfony console not found" >&2;
         return 1;
     fi
+
+    local console="$(_symfony_find_console)";
+
+    command "$console" "$@";
 }
 
 sfservice() {
