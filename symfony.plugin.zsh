@@ -40,56 +40,6 @@ sfhelp() {
     sf help $@
 }
 
-flex() {
-    if [[ $# -eq 0 || "$1" =~ '^-h|--help$' ]]; then
-        echo -en "
-\e[32mSymfony Flex Helper\e[0m by your best friend Oleg Voronkovich :)
-
-\e[33mUsage:\e[0m
-
-    \e[32mflex\e[0m new          Create a new Symfony project in the current dir using \"symfony/skeleton\"
-    \e[32mflex\e[0m new-site     Create a new Symfony project in the current dir using \"symfony/website-skeleton\"
-    \e[32mflex\e[0m PACKAGES     Install a set of listed packages
-    \e[32mflex\e[0m -l [PATTERN] List all available packages
-
-\e[33mExamples:\e[0m
-
-    \e[32mflex\e[0m new
-    \e[32mflex\e[0m new 3.3
-
-    \e[32mflex\e[0m api admin
-    \e[32mflex\e[0m cli:dev-master
-
-    \e[32mflex\e[0m -l adm
-
-    You can use any Composer option:
-
-    \e[32mflex\e[0m --ignore-platform-reqs process
-"
-        return 0;
-    fi
-
-    if [[ "$1" =~ '^-l|--list)?$' ]]; then
-        _symfony_flex_load_aliases;
-
-        if [[ $# -eq 1 ]]; then
-            echo $SYMFONY_FLEX_ALIASES;
-        else
-            echo $SYMFONY_FLEX_ALIASES | grep "$2";
-        fi
-
-        return 0;
-    fi
-
-    if [[ "$1" == 'new' ]]; then
-        composer create-project symfony/skeleton . $2;
-    elif [[ "$1" == 'new-site' ]]; then
-        composer create-project symfony/website-skeleton . $2;
-    else
-        composer require $@;
-    fi
-}
-
 encore() {
     local pwd="$(pwd)";
 
@@ -99,9 +49,7 @@ Encore is not found. Install it by using one of these commands:
 
 yarn add @symfony/webpack-encore --dev
 
-npm install @symfony/webpack-encore --save-dev
-
-flex webpack-encore" >&2;
+npm install @symfony/webpack-encore --save-dev" >&2;
 
         return 1;
     fi
@@ -244,20 +192,6 @@ _symfony_console_debug_router() {
     compadd `_symfony_get_routes`;
 }
 
-_symfony_flex() {
-    _symfony_flex_load_aliases;
-    compadd 'new' 'new-site';
-    compadd $(echo $SYMFONY_FLEX_ALIASES);
-}
-
-export SYMFONY_FLEX_ALIASES='';
-_symfony_flex_load_aliases() {
-    if [[ "$SYMFONY_FLEX_ALIASES" == '' ]]; then
-        echo "\nLoading information about available packages...";
-        SYMFONY_FLEX_ALIASES=$(curl -sf 'https://flex.symfony.com/aliases.json' | tr -s '{}:,"' ' ' | xargs -n1 | sort -u);
-    fi
-}
-
 _symfony_encore() {
     compadd 'dev' 'dev-server' 'prod' 'production';
 }
@@ -269,5 +203,4 @@ compdef _symfony_console 'app/console';
 compdef _symfony_console 'bin/console';
 compdef _symfony_console 'sf';
 compdef _symfony_console 'sfhelp';
-compdef _symfony_flex 'flex';
 compdef _symfony_encore 'encore';
