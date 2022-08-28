@@ -3,60 +3,35 @@ alias sfdev='sf --env=dev';
 alias sfnew='symfony new';
 
 sf() {
-    if command -v symfony >/dev/null; then
-        symfony console "$@";
+    if [[ ! -f bin/console ]]; then
+        echo 'Symfony console not found: bin/console' >&2;
 
-        return
-    fi
-
-    local console="$(_symfony_find_console)";
-
-    if [[ -z "$console" ]]; then
-        echo "Symfony console not found" >&2;
         return 1;
     fi
 
-    command "$console" "$@";
+    if command -v symfony >/dev/null; then
+        symfony console "$@";
+
+        return;
+    fi
+
+    bin/console "$@";
 }
 
 sfservice() {
-    sf debug:container $@
+    sf debug:container "$@";
 }
 
 sfroute() {
-    sf debug:router $@
+    sf debug:router "$@";
 }
 
 sfconfig() {
-    sf debug:config $@
+    sf debug:config "$@";
 }
 
 sfhelp() {
-    sf help $@
-}
-
-_symfony_find_console() {
-    local dir="$PWD";
-
-    # Upward search
-    while ((1)); do
-
-        if [[ -f "$dir/bin/console" ]]; then
-            # Symfony 3
-            echo "$dir/bin/console";
-            return 0;
-        elif [[ -f "$dir/app/console" ]]; then
-            # Symfony 2
-            echo "$dir/app/console";
-            return 0;
-        fi
-
-        [[ "$dir" == '' ]] && break;
-
-        dir="${dir%/*}";
-    done
-
-    return 1;
+    sf help "$@";
 }
 
 _symfony_get_commands() {
@@ -90,10 +65,8 @@ _symfony_get_items() {
 }
 
 _symfony_get_services() {
-    local console=${1-$(_symfony_find_console)};
-
     if [[ $? -eq 0 ]]; then
-        _symfony_get_items "$console" debug:container;
+        _symfony_get_items sf debug:container;
         return 0;
     else
         return 1;
@@ -101,10 +74,8 @@ _symfony_get_services() {
 }
 
 _symfony_get_routes() {
-    local console=${1-$(_symfony_find_console)};
-
     if [[ $? -eq 0 ]]; then
-        _symfony_get_items "$console" debug:router;
+        _symfony_get_items sf debug:router;
         return 0;
     else
         return 1;
@@ -112,10 +83,8 @@ _symfony_get_routes() {
 }
 
 _symfony_get_config_keys() {
-    local console=${1-$(_symfony_find_console)};
-
     if [[ $? -eq 0 ]]; then
-        "$console" debug:config |  sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p';
+        sf debug:config |  sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p';
         return 0;
     else
         return 1;
@@ -146,11 +115,11 @@ _symfony_console() {
 
     case $state in
         cmds)
-            cmds_list=(`_symfony_get_commands "$(_symfony_find_console)"`);
+            cmds_list=($(_symfony_get_commands sf));
             eval _values $cmds_list && ret=0;
             ;;
         args)
-            opts_list=(`_symfony_get_options "$(_symfony_find_console)" $line[1]`);
+            opts_list=($(_symfony_get_options sf $line[1]));
             eval _arguments $opts_list && ret=0;
             ;;
     esac;
@@ -170,10 +139,9 @@ _symfony_console_debug_router() {
     compadd `_symfony_get_routes`;
 }
 
+compdef _symfony_console 'sf';
+compdef _symfony_console 'bin/console';
+compdef _symfony_console 'sfhelp';
 compdef _symfony_console_debug_config 'sfconfig';
 compdef _symfony_console_debug_container 'sfservice';
 compdef _symfony_console_debug_router 'sfroute';
-compdef _symfony_console 'app/console';
-compdef _symfony_console 'bin/console';
-compdef _symfony_console 'sf';
-compdef _symfony_console 'sfhelp';
