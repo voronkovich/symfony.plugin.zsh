@@ -14,12 +14,12 @@ sf() {
         return
     fi
 
+    local console="$(_symfony_find_console)";
+
     if [[ -z "$console" ]]; then
         echo "Symfony console not found" >&2;
         return 1;
     fi
-
-    local console="$(_symfony_find_console)";
 
     command "$console" "$@";
 }
