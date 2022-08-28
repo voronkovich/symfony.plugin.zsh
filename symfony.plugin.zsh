@@ -1,7 +1,6 @@
 alias sfprod='sf --env=prod';
 alias sfdev='sf --env=dev';
 alias sfnew='symfony new';
-alias encore-watch='encore dev --watch'
 
 sf() {
     if command -v symfony >/dev/null; then
@@ -34,23 +33,6 @@ sfconfig() {
 
 sfhelp() {
     sf help $@
-}
-
-encore() {
-    local pwd="$(pwd)";
-
-    if [[ ! -f "$pwd/node_modules/.bin/encore" ]]; then
-        echo  "
-Encore is not found. Install it by using one of these commands:
-
-yarn add @symfony/webpack-encore --dev
-
-npm install @symfony/webpack-encore --save-dev" >&2;
-
-        return 1;
-    fi
-
-    "$pwd/node_modules/.bin/encore" $*;
 }
 
 _symfony_find_console() {
@@ -188,10 +170,6 @@ _symfony_console_debug_router() {
     compadd `_symfony_get_routes`;
 }
 
-_symfony_encore() {
-    compadd 'dev' 'dev-server' 'prod' 'production';
-}
-
 compdef _symfony_console_debug_config 'sfconfig';
 compdef _symfony_console_debug_container 'sfservice';
 compdef _symfony_console_debug_router 'sfroute';
@@ -199,4 +177,3 @@ compdef _symfony_console 'app/console';
 compdef _symfony_console 'bin/console';
 compdef _symfony_console 'sf';
 compdef _symfony_console 'sfhelp';
-compdef _symfony_encore 'encore';
