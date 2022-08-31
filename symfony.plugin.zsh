@@ -180,7 +180,7 @@ _symfony_get_commands() {
         -e '1,/Available commands/d' \
         -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/"\1[\2]"/p' \
+        -e 's/^  ?([^[:space:]]+) +(.*)$/\1[\2]/p' \
     ;
 }
 
@@ -193,7 +193,7 @@ _symfony_get_options() {
         -e '/^Help/,$d' \
         -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
-        -e 's/^.*(--[^=\[[:space:]]+=?)[^[:space:]]*[[:space:]]*(.*)$/"\1[\2]"/p' \
+        -e 's/^.*(--[^=\[[:space:]]+=?)[^[:space:]]*[[:space:]]*(.*)$/\1[\2]/p'
     ;
 }
 
@@ -235,24 +235,24 @@ _symfony_console() {
 
     case $state in
         cmds)
-            cmds_list=($'""'
-                $'"mails[Open the local project mail catcher web interface in a browser]"'
-                $'"new[Create a new Symfony project]"'
-                $'"serve[Run a local web server]"'
-                $'"status[Get the local web server status]"'
-                $'"open[Open the local project in a browser]"'
-                $'"run[Run a program with environment variables set depending on the current context]"'
-                $'"php[Run PHP (version depends on project\'s configuration)]"'
-                $'"composer[Run Composer without memory limit]"'
-                $'"phpunit[Run PHPUnit]"'
-                $'"psql[Run psql]"'
+            IFS=$'\n' cmds_list=(
+                $'new[Create a new Symfony project]'
+                $'serve[Run a local web server]'
+                $'status[Get the local web server status]'
+                $'open[Open the local project in a browser]'
+                $'mails[Open the local project mail catcher web interface in a browser]'
+                $'run[Run a program with environment variables set depending on the current context]'
+                $'php[Run PHP (version depends on project\'s configuration)]'
+                $'composer[Run Composer without memory limit]'
+                $'phpunit[Run PHPUnit]'
+                $'psql[Run psql]'
                 $(_symfony_get_commands sf 2>/dev/null)
             );
-            eval _values $cmds_list && ret=0;
+            _values '' ${cmds_list} && ret=0;
             ;;
         args)
-            opts_list=($(_symfony_get_options sf $line[1] 2>/dev/null));
-            eval _arguments $opts_list && ret=0;
+            IFS=$'\n' opts_list=($(_symfony_get_options sf $line[1] 2>/dev/null));
+            _arguments $opts_list && ret=0;
             ;;
     esac;
 
