@@ -173,9 +173,9 @@ sfhelp() {
 }
 
 _symfony_get_commands() {
-    [[ -z $1 ]] && return 1;
+    [[ $# -eq 0 ]] && return 1;
 
-    "${1}" --no-ansi list | \
+    "$@" --no-ansi list 2>/dev/null | \
         sed -nr \
         -e '1,/Available commands/d' \
         -e 's/([[]|[]])/\\\1/g' \
@@ -185,9 +185,9 @@ _symfony_get_commands() {
 }
 
 _symfony_get_options() {
-    ([[ -z $1 ]] || [[ -z $2 ]]) && return 1;
+    [[ $# -eq 0 ]] && return 1;
 
-    "${1}" "${2}" --help --no-ansi | \
+    "$@" --help --no-ansi 2>/dev/null | \
         sed -nr \
         -e '1,/^Options/d' \
         -e '/^Help/,$d' \
@@ -198,7 +198,9 @@ _symfony_get_options() {
 }
 
 _symfony_get_items() {
-    "${1}" "${2}" --no-ansi | sed -nr 's/^  ?([a-z_][^[:space:]]+) .*$/\1/p';
+    [[ $# -eq 0 ]] && return 1;
+
+    "$@" --no-ansi 2>/dev/null | sed -nr 's/^  ?([a-z_][^[:space:]]+) .*$/\1/p';
 }
 
 _symfony_get_services() {
