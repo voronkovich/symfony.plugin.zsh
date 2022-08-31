@@ -236,12 +236,12 @@ _symfony_console() {
     case $state in
         cmds)
             cmds_list=(
-                $(_symfony_get_commands sf)
-                $'"new[Create a new Symfony project]"'
+                $(_symfony_get_commands sf 2>/dev/null)
+                $'"mails[Open the local project mail catcher web interface in a browser]"'
                 $'"serve[Run a local web server]"'
+                $'"new[Create a new Symfony project]"'
                 $'"status[Get the local web server status]"'
                 $'"open[Open the local project in a browser]"'
-                $'"mails[Open the local project mail catcher web interface in a browser]"'
                 $'"php[Run PHP (version depends on project\'s configuration)]"'
                 $'"composer[Run Composer without memory limit]"'
                 $'"phpunit[Run PHPUnit]"'
