@@ -241,6 +241,7 @@ _symfony_console() {
                 $'"serve[Run a local web server]"'
                 $'"status[Get the local web server status]"'
                 $'"open[Open the local project in a browser]"'
+                $'"run[Run a program with environment variables set depending on the current context]"'
                 $'"php[Run PHP (version depends on project\'s configuration)]"'
                 $'"composer[Run Composer without memory limit]"'
                 $'"phpunit[Run PHPUnit]"'
@@ -250,7 +251,7 @@ _symfony_console() {
             eval _values $cmds_list && ret=0;
             ;;
         args)
-            opts_list=($(_symfony_get_options sf $line[1]));
+            opts_list=($(_symfony_get_options sf $line[1] 2>/dev/null));
             eval _arguments $opts_list && ret=0;
             ;;
     esac;
