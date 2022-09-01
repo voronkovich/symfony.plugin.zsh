@@ -168,10 +168,6 @@ sfconfig() {
     sf debug:config "$@"
 }
 
-sfhelp() {
-    sf help "$@"
-}
-
 _symfony_get_commands() {
     "$@" list --no-ansi 2>/dev/null | \
         sed -nr \
@@ -251,7 +247,6 @@ _symfony_console_debug_router() {
 }
 
 compdef _symfony_console 'sf'
-compdef _symfony_console 'sfhelp'
 compdef _symfony_console_debug_config 'sfconfig'
 compdef _symfony_console_debug_container 'sfservice'
 compdef _symfony_console_debug_router 'sfroute'
