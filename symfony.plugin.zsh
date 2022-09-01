@@ -204,30 +204,15 @@ _symfony_get_items() {
 }
 
 _symfony_get_services() {
-    if [[ $? -eq 0 ]]; then
-        _symfony_get_items sf debug:container;
-        return 0;
-    else
-        return 1;
-    fi
+    _symfony_get_items sf debug:container
 }
 
 _symfony_get_routes() {
-    if [[ $? -eq 0 ]]; then
-        _symfony_get_items sf debug:router;
-        return 0;
-    else
-        return 1;
-    fi
+    _symfony_get_items sf debug:router
 }
 
 _symfony_get_config_keys() {
-    if [[ $? -eq 0 ]]; then
-        sf debug:config |  sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p';
-        return 0;
-    else
-        return 1;
-    fi
+    sf debug:config | sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p'
 }
 
 _symfony_console() {
