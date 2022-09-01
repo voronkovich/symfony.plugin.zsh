@@ -1,64 +1,64 @@
-alias sfprod='sf --env=prod';
-alias sfdev='sf --env=dev';
+alias sfprod='sf --env=prod'
+alias sfdev='sf --env=dev'
 
 sf() (
     case "${1}" in
-        new )
+        new)
             shift && exec sfnew "$@"
             ;;
-        serve )
+        serve)
             shift && exec sfserve "$@"
             ;;
-        php )
+        php)
             if command -v symfony >/dev/null; then
                 shift && exec symfony php "$@"
             fi
 
             shift && exec php "$@"
             ;;
-        composer )
+        composer)
             if command -v symfony >/dev/null; then
                 shift && exec symfony composer "$@"
             fi
 
             shift && exec composer "$@"
             ;;
-        phpunit )
+        phpunit)
             if command -v symfony >/dev/null; then
                 shift && exec symfony php bin/phpunit "$@"
             fi
 
             echo 'Symfony CLI required: https://symfony.com/download' >&2 && return 1
             ;;
-        run )
+        run)
             if command -v symfony >/dev/null; then
                 shift && exec symfony run "$@"
             fi
 
             echo 'Symfony CLI required: https://symfony.com/download' >&2 && return 1
             ;;
-        psql )
+        psql)
             if command -v symfony >/dev/null; then
                 shift && exec symfony run psql "$@"
             fi
 
             echo 'Symfony CLI required: https://symfony.com/download' >&2 && return 1
             ;;
-        open )
+        open)
             if command -v symfony >/dev/null; then
                 shift && exec symfony open:local "$@"
             fi
 
             echo 'Symfony CLI required: https://symfony.com/download' >&2 && return 1
             ;;
-        status )
+        status)
             if command -v symfony >/dev/null; then
                 shift && exec symfony server:status "$@"
             fi
 
             echo 'Symfony CLI required: https://symfony.com/download' >&2 && return 1
             ;;
-        mails|webmail )
+        mails|webmail)
             if command -v symfony >/dev/null; then
                 shift && exec symfony open:local:webmail "$@"
             fi
@@ -157,36 +157,31 @@ HELP
 )
 
 sfservice() {
-    sf debug:container "$@";
+    sf debug:container "$@"
 }
 
 sfroute() {
-    sf debug:router "$@";
+    sf debug:router "$@"
 }
 
 sfconfig() {
-    sf debug:config "$@";
+    sf debug:config "$@"
 }
 
 sfhelp() {
-    sf help "$@";
+    sf help "$@"
 }
 
 _symfony_get_commands() {
-    [[ $# -eq 0 ]] && return 1;
-
-    "$@" --no-ansi list 2>/dev/null | \
+    "$@" list --no-ansi 2>/dev/null | \
         sed -nr \
         -e '1,/Available commands/d' \
         -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/\1[\2]/p' \
-    ;
+        -e 's/^  ?([^[:space:]]+) +(.*)$/\1[\2]/p'
 }
 
 _symfony_get_options() {
-    [[ $# -eq 0 ]] && return 1;
-
     "$@" --help --no-ansi 2>/dev/null | \
         sed -nr \
         -e '1,/^Options/d' \
@@ -194,13 +189,10 @@ _symfony_get_options() {
         -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
         -e 's/^.*[[:space:]](--[[:alnum:]-]+=?).*  (.*)$/\1[\2]/p'
-    ;
 }
 
 _symfony_get_items() {
-    [[ $# -eq 0 ]] && return 1;
-
-    "$@" --no-ansi 2>/dev/null | sed -nr 's/^  ?([a-z_][^[:space:]]+) .*$/\1/p';
+    "$@" --no-ansi 2>/dev/null | sed -nr 's/^  ?([a-z_][^[:space:]]+) .*$/\1/p'
 }
 
 _symfony_get_services() {
@@ -218,7 +210,7 @@ _symfony_get_config_keys() {
 _symfony_console() {
     local curcontext="$curcontext" state line _packages _opts ret=1
 
-    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0;
+    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0
 
     case $state in
         cmds)
@@ -234,32 +226,32 @@ _symfony_console() {
                 $'phpunit[Run PHPUnit]'
                 $'psql[Run psql]'
                 $(_symfony_get_commands sf 2>/dev/null)
-            );
-            _values '' ${cmds_list} && ret=0;
+            )
+            _values '' ${cmds_list} && ret=0
             ;;
         args)
-            IFS=$'\n' opts_list=($(_symfony_get_options sf $line[1] 2>/dev/null));
-            _arguments $opts_list && ret=0;
+            IFS=$'\n' opts_list=($(_symfony_get_options sf $line[1] 2>/dev/null))
+            _arguments $opts_list && ret=0
             ;;
-    esac;
+    esac
 
-    return ret;
+    return ret
 }
 
 _symfony_console_debug_config() {
-    compadd `_symfony_get_config_keys`;
+    compadd `_symfony_get_config_keys`
 }
 
 _symfony_console_debug_container() {
-    compadd `_symfony_get_services`;
+    compadd `_symfony_get_services`
 }
 
 _symfony_console_debug_router() {
-    compadd `_symfony_get_routes`;
+    compadd `_symfony_get_routes`
 }
 
-compdef _symfony_console 'sf';
-compdef _symfony_console 'sfhelp';
-compdef _symfony_console_debug_config 'sfconfig';
-compdef _symfony_console_debug_container 'sfservice';
-compdef _symfony_console_debug_router 'sfroute';
+compdef _symfony_console 'sf'
+compdef _symfony_console 'sfhelp'
+compdef _symfony_console_debug_config 'sfconfig'
+compdef _symfony_console_debug_container 'sfservice'
+compdef _symfony_console_debug_router 'sfroute'
