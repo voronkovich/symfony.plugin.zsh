@@ -234,6 +234,25 @@ _symfony_console() {
     return ret
 }
 
+_symfony_cli() {
+    local curcontext="$curcontext" state line _packages _opts ret=1
+
+    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0
+
+    case $state in
+        cmds)
+            IFS=$'\n' cmds_list=($(_symfony_get_commands symfony 2>/dev/null | sed -e 's/^local\\://'))
+            _values '' ${cmds_list} && ret=0
+            ;;
+        args)
+            IFS=$'\n' opts_list=($(_symfony_get_options symfony $line[1] 2>/dev/null))
+            _arguments $opts_list && ret=0
+            ;;
+    esac
+
+    return ret
+}
+
 _symfony_console_debug_config() {
     compadd `_symfony_get_config_keys`
 }
@@ -247,6 +266,7 @@ _symfony_console_debug_router() {
 }
 
 compdef _symfony_console 'sf'
+compdef _symfony_cli 'symfony'
 compdef _symfony_console_debug_config 'sfconfig'
 compdef _symfony_console_debug_container 'sfservice'
 compdef _symfony_console_debug_router 'sfroute'
