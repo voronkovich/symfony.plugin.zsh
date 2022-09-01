@@ -20,12 +20,11 @@ source path/to/cloned/repo/symfony.plugin.zsh
 
 This plugin provides some usefull commands and shortcuts:
 
-- `sf` is used for running Symfony console commands. You can run this command inside project's folders because it searches the console script upward from a current dir;
+- `sf` is used for running Symfony console commands;
 - `sfprod` and `sfdev` are shortcuts for `sf --env=prod` and `sf --env=dev`;
 - `sfservice` shows a service definition. It has an autocompletion for service ids;
 - `sfroute` shows a route definition. It has autocompletion for routes names;
 - `sfconfig` shows a container extensions configuration. It has autocompletion for extensions names;
-- `sfhelp` shows a help message for a specified command;
 - `sfnew` is just a shortcut for `symfony new`.
 
 Also this plugin provides a commands and some options autocompletion for both Symfony's console and installer.
