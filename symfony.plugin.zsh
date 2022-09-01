@@ -174,7 +174,7 @@ _symfony_get_commands() {
         -e '1,/Available commands/d' \
         -e 's/([[]|[]])/\\\1/g' \
         -e 's/:/\\\:/g' \
-        -e 's/^  ?([^[:space:]]+) +(.*)$/\1[\2]/p'
+        -e 's/^  ([[:alnum:]\\:-]+).*  (.*)$/\1[\2]/p'
 }
 
 _symfony_get_options() {
