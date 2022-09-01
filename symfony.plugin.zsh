@@ -241,11 +241,14 @@ _symfony_cli() {
 
     case $state in
         cmds)
-            IFS=$'\n' cmds_list=($(_symfony_get_commands symfony 2>/dev/null | sed -e 's/^local\\://'))
+            IFS=$'\n' local cmds_list=(
+                $'serve[Run a local web server]'
+                $(_symfony_get_commands symfony 2>/dev/null | sed -e 's/^local\\:server/server/')
+            )
             _values '' ${cmds_list} && ret=0
             ;;
         args)
-            IFS=$'\n' opts_list=($(_symfony_get_options symfony $line[1] 2>/dev/null))
+            IFS=$'\n' local opts_list=($(_symfony_get_options symfony $line[1] 2>/dev/null))
             _arguments $opts_list && ret=0
             ;;
     esac
