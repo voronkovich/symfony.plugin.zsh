@@ -89,6 +89,7 @@ sfnew() (
     zmodload zsh/zutil
     zparseopts -D -F -K -- \
         {h,-help}=help \
+        -no-ansi=noansi \
         -webapp=webapp \
         -version:=version \
         || return 1
@@ -98,14 +99,13 @@ sfnew() (
 Create a new Symfony project
 
 Usage:
+
   ${0} [options] [--] [<directory>]
 
 Arguments:
-
   directory  Directory of the project to create
 
 Options:
-
   --version=value  The version of the Symfony skeleton
   --webapp         Add the webapp pack to get a fully configured web project
   -h, --help       Show this help
@@ -132,6 +132,7 @@ sfserve() (
     zmodload zsh/zutil
     zparseopts -D -F -K -- \
         {h,-help}=help \
+        -no-ansi=noansi \
         -port:=port \
         -document-root:=root \
         || return 1
@@ -153,7 +154,7 @@ HELP
         return 0
     fi
 
-    exec php -S "127.0.0.1:${port[2]}" -t "${root[2]}"
+    exec php -S "127.0.0.1:${port[2]/=}" -t "${root[2]/=}"
 )
 
 sfservice() {
