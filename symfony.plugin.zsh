@@ -204,11 +204,12 @@ _symfony_get_config_keys() {
 }
 
 _sf() {
-    local curcontext="$curcontext" state line _packages _opts ret=1
+    local curcontext="${curcontext}" state line ret=1
+    typeset -A opt_args
 
-    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0
+    _arguments '1: :->cmds' '*: :->args' && ret=0
 
-    case $state in
+    case ${state} in
         cmds)
             IFS=$'\n' cmds_list=(
                 $'new[Create a new Symfony project]'
@@ -226,8 +227,8 @@ _sf() {
             _values '' ${cmds_list} && ret=0
             ;;
         args)
-            IFS=$'\n' opts_list=($(_symfony_get_options sf $line[1] 2>/dev/null))
-            _arguments $opts_list && ret=0
+            IFS=$'\n' opts_list=($(_symfony_get_options sf "${line[1]}" 2>/dev/null))
+            _arguments '*: :_files' ${opts_list} && ret=0
             ;;
     esac
 
@@ -235,21 +236,23 @@ _sf() {
 }
 
 _symfony_cli() {
-    local curcontext="$curcontext" state line _packages _opts ret=1
+    local curcontext="${curcontext}" state line ret=1
+    typeset -A opt_args
 
-    _arguments -s -w '1: :->cmds' '*:: :->args' && ret=0
+    _arguments '1: :->cmds' '*: :->args' && ret=0
 
-    case $state in
+    case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=(
                 $'serve[Run a local web server]'
+                $'run[Run a program with environment variables set depending on the current context]'
                 $(_symfony_get_commands symfony 2>/dev/null | sed -e 's/^local\\:server/server/')
             )
             _values '' ${cmds_list} && ret=0
             ;;
         args)
-            IFS=$'\n' local opts_list=($(_symfony_get_options symfony $line[1] 2>/dev/null))
-            _arguments $opts_list && ret=0
+            IFS=$'\n' local opts_list=($(_symfony_get_options symfony "${line[1]}" 2>/dev/null))
+            _arguments '*: :_files' ${opts_list} && ret=0
             ;;
     esac
 
@@ -257,12 +260,12 @@ _symfony_cli() {
 }
 
 _symfony_console() {
-    local curcontext="$curcontext" state line ret=1
+    local curcontext="${curcontext}" state line ret=1
     typeset -A opt_args
 
     _arguments '1: :->cmds' '*: :->args' && ret=0
 
-    case $state in
+    case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=($(_symfony_get_commands "${words[1]}" 2>/dev/null))
             _values '' ${cmds_list} && ret=0
