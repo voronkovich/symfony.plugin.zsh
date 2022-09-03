@@ -1,0 +1,168 @@
+#!/usr/bin/env zsh
+
+declare -rx app_name="${0##*/}"
+
+app() (
+    case "${1}" in
+        new)
+            shift && exec app_new "$@"
+            ;;
+        serve)
+            shift && exec app_serve "$@"
+            ;;
+        status)
+            symfony_cli_required
+
+            shift && exec symfony server:status "$@"
+            ;;
+        php)
+            symfony_cli_required
+
+            shift && exec symfony php "$@"
+            ;;
+        composer)
+            symfony_cli_required
+
+            shift && exec symfony composer "$@"
+            ;;
+        phpunit)
+            symfony_cli_required
+
+            shift && exec symfony php bin/phpunit "$@"
+            ;;
+        run)
+            symfony_cli_required
+
+            shift && exec symfony run "$@"
+            ;;
+        psql)
+            symfony_cli_required
+
+            shift && exec symfony run psql "$@"
+            ;;
+        open)
+            symfony_cli_required
+
+            shift && exec symfony open:local "$@"
+            ;;
+        mails|webmail)
+            symfony_cli_required
+
+            shift && exec symfony open:local:webmail "$@"
+            ;;
+    esac
+
+    symfony_console_required
+
+    if command -v symfony >/dev/null; then
+        exec symfony console "$@"
+    fi
+
+    exec bin/console "$@"
+)
+
+app_new() (
+    if command -v symfony >/dev/null; then
+        exec symfony new "$@"
+    fi
+
+    local help version webapp
+
+    zmodload zsh/zutil
+    zparseopts -D -F -K -- \
+        {h,-help}=help \
+        -no-ansi=noansi \
+        -webapp=webapp \
+        -version:=version \
+        || return 1
+
+    if [[ -n "${help}" ]]; then
+        cat <<HELP
+Create a new Symfony project
+
+Usage:
+
+  ${app_name} [options] [--] [<directory>]
+
+Arguments:
+  directory  Directory of the project to create
+
+Options:
+  --version=value  The version of the Symfony skeleton
+  --webapp         Add the webapp pack to get a fully configured web project
+  -h, --help       Show this help
+HELP
+        return 0
+    fi
+
+    if [[ -z ${1} ]]; then
+        echo 'A directory must be passed as an argument or via the --dir option' >&2
+        return 1
+    fi
+
+    composer create-project "symfony/skeleton${version[1]:+:}${version[2]/=}" "${1}" \
+        && [[ -n "${webapp}" ]] && composer --working-dir="${1:-skeleton}" require webapp
+)
+
+app_serve() (
+    if command -v symfony >/dev/null; then
+        exec symfony serve "$@"
+    fi
+
+    local help port=('--port' '8000') root=('--document-root' 'public')
+
+    zmodload zsh/zutil
+    zparseopts -D -F -K -- \
+        {h,-help}=help \
+        -no-ansi=noansi \
+        -port:=port \
+        -document-root:=root \
+        || return 1
+
+    if [[ -n "${help}" ]]; then
+        cat <<HELP
+Run a local web server
+
+Usage:
+
+  ${app_name} [options]
+
+Options:
+
+  --port=value           Preferred HTTP port [default: ${port[2]}]
+  --document-root=value  Project document root [default: ${root[2]}]
+  -h, --help             Show this help
+HELP
+        return 0
+    fi
+
+    exec php -S "127.0.0.1:${port[2]/=}" -t "${root[2]/=}"
+)
+
+symfony_console_required() {
+    [[ -f bin/console ]] && return
+
+    echo 'Symfony console not found: bin/console' >&2
+    exit 1
+}
+
+symfony_cli_required() {
+    command -v symfony >/dev/null && return
+
+    echo 'Symfony CLI required: https://symfony.com/download' >&2
+
+    if command -v brew > /dev/null; then
+        echo '\nHomebrew:\n'
+        echo '  brew install symfony-cli/tap/symfony-cli'
+    fi
+
+    if command -v apt > /dev/null; then
+        echo '\nAPT:\n'
+        echo "  curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash"
+        echo '  sudo apt install symfony-cli'
+    fi
+
+    exit 1
+}
+
+app "$@"
