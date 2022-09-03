@@ -1,0 +1,35 @@
+#compdef sf
+
+_sf() {
+    local curcontext="${curcontext}" state line ret=1
+    typeset -A opt_args
+
+    _arguments '1: :->cmds' '*: :->args' && ret=0
+
+    case ${state} in
+        cmds)
+            IFS=$'\n' cmds_list=(
+                $'new[Create a new Symfony project]'
+                $'serve[Run a local web server]'
+                $'status[Get the local web server status]'
+                $'open[Open the local project in a browser]'
+                $'mails[Open the local project mail catcher web interface in a browser]'
+                $'run[Run a program with environment variables set depending on the current context]'
+                $'php[Run PHP (version depends on project\'s configuration)]'
+                $'composer[Run Composer without memory limit]'
+                $'phpunit[Run PHPUnit]'
+                $'psql[Run psql]'
+                $(sf list --no-ansi 2>/dev/null | __symfony_complete_commands)
+            )
+            _values '' ${cmds_list} && ret=0
+            ;;
+        args)
+            IFS=$'\n' opts_list=($(sf "${line[1]}" --help --no-ansi 2>/dev/null | __symfony_complete_options))
+            _arguments '*: :_files' ${opts_list} && ret=0
+            ;;
+    esac
+
+    return ret
+} 2>/dev/null
+
+_sf "$@"

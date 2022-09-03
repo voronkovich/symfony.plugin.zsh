@@ -1,0 +1,27 @@
+#compdef symfony
+
+_symfony() {
+    local curcontext="${curcontext}" state line ret=1
+    typeset -A opt_args
+
+    _arguments '1: :->cmds' '*: :->args' && ret=0
+
+    case ${state} in
+        cmds)
+            IFS=$'\n' local cmds_list=(
+                $'serve[Run a local web server]'
+                $'run[Run a program with environment variables set depending on the current context]'
+                $(symfony list --no-ansi 2>/dev/null | __symfony_complete_commands | sed -e 's/^local\\:server/server/')
+            )
+            _values '' ${cmds_list} && ret=0
+            ;;
+        args)
+            IFS=$'\n' local opts_list=($(symfony "${line[1]}" --help --no-ansi 2>/dev/null | __symfony_complete_options))
+            _arguments '*: :_files' ${opts_list} && ret=0
+            ;;
+    esac
+
+    return ret
+} 2>/dev/null
+
+_symfony "$@"

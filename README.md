@@ -1,8 +1,10 @@
 # symfony.plugin.zsh
 
-A zsh plugin for the [Symfony](https://symfony.com/) with usefull commands and an actual autocompletion.
+A zsh plugin for the [Symfony](https://symfony.com/) console and CLI.
 
 ## Installation
+
+If yout need autocompletion, please, install [symfony-complete.plugin.zsh](https://github.com/voronkovich/symfony-complete.plugin.zsh).
 
 Antigen:
 
@@ -10,7 +12,7 @@ Antigen:
 antigen bundle voronkovich/symfony.plugin.zsh
 ```
 
-Or clone this repo and add this into your .zshrc:
+Or clone this repo and add this into your `.zshrc`:
 
 ```sh
 source path/to/cloned/repo/symfony.plugin.zsh
