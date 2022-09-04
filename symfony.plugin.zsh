@@ -32,7 +32,7 @@ _symfony_get_routes() {
 }
 
 _symfony_get_config_keys() {
-    sf debug:config | sed -nr 's/^.*\| ([a-z_][^[:space:]]+) .*$/\1/p'
+    sf debug:config --no-ansi 2>&1 | sed -nE -e 's/^.*\w+Bundle[[:space:]]+([a-z_]+).*$/\1/p'
 }
 
 _symfony_console_debug_config() {
