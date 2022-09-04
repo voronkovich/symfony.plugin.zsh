@@ -18,6 +18,7 @@ _sf() {
                 $'php[Run PHP (version depends on project\'s configuration)]'
                 $'composer[Run Composer without memory limit]'
                 $'phpunit[Run PHPUnit]'
+                $'phive[Run PHIVE]'
                 $'psql[Run psql]'
                 $(sf list --no-ansi 2>/dev/null | __symfony_complete_commands)
             )

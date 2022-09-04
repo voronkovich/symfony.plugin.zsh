@@ -37,6 +37,22 @@ app() (
 
             shift && exec symfony php bin/phpunit "$@"
             ;;
+        phive)
+            symfony_cli_required
+
+            local phive="$(which phive 2>/dev/null)"
+
+            if [[ $? -gt 0 || ! -f "${phive}" ]]; then
+                echo 'PHIVE required: https://phar.io/#Install' >&2
+                if command -v brew > /dev/null; then
+                    echo '\nHomebrew:\n'
+                    echo '  brew install phive'
+                fi
+                exit 1
+            fi
+
+            shift && exec symfony php "${phive}" "$@"
+            ;;
         run)
             symfony_cli_required
 
