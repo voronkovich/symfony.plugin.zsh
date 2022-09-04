@@ -28,6 +28,13 @@ app() (
         phpunit)
             symfony_cli_required
 
+            if [[ ! -f bin/phpunit ]]; then
+                echo 'PHPUnit not found: bin/phpunit' >&2
+                echo '\nInstallation:\n'
+                echo "  ${app_name} composer require --dev phpunit"
+                exit 1
+            fi
+
             shift && exec symfony php bin/phpunit "$@"
             ;;
         run)
