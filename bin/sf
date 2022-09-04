@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
-    eval exec "${SF_CONSOLE_RUNNER}" bin/console "$@"
+    exec "${(@s: :)SF_CONSOLE_RUNNER}" bin/console "$@"
 fi
 
 declare -rx app_name="${0##*/}"
