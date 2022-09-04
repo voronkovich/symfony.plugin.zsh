@@ -17,8 +17,8 @@ _sf() {
                 $'run[Run a program with environment variables set depending on the current context]'
                 $'php[Run PHP (version depends on project\'s configuration)]'
                 $'composer[Run Composer without memory limit]'
-                $'phpunit[Run PHPUnit]'
-                $'phive[Run PHIVE]'
+                $'phpunit[Run PHPUnit using the configured PHP version]'
+                $'phive[Run PHIVE using the configured PHP version]'
                 $'psql[Run psql]'
                 $(sf list --no-ansi 2>/dev/null | __symfony_complete_commands)
             )
