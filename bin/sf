@@ -2,7 +2,7 @@
 
 declare -rx app_name="${0##*/}"
 
-app() (
+main() (
     case "${1}" in
         new)
             shift && exec app_new "$@"
@@ -210,4 +210,4 @@ find_phive() {
     return 1
 }
 
-app "$@"
+main "$@"
