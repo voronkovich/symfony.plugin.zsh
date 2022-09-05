@@ -9,8 +9,18 @@ _sf() {
     case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=(
+                $'new[Create a new Symfony project]'
+                $'serve[Run a local web server]'
+                $'open[Open the local project in a browser]'
+                $'run[Run a program with environment depending on the current context]'
+                $'php[Run PHP (version depends on project\'s configuration)]'
+                $'composer[Run Composer without memory limit]'
+                $'phpunit[Run PHPUnit using the configured PHP version]'
+                $'phive[Run PHIVE using the configured PHP version]'
+                $'status[Get the local web server status]'
+                $'mails[Open the local project mail catcher web interface in a browser]'
+                $'psql[Run psql]'
                 $(sf list --no-ansi 2>/dev/null | __symfony_complete_commands)
-                $(__sf_extra_completions)
             )
             _values '' ${cmds_list} && ret=0
             ;;
@@ -22,24 +32,5 @@ _sf() {
 
     return ret
 } 2>/dev/null
-
-__sf_extra_completions() {
-    [[ -n "${SF_CONSOLE_RUNNER}" ]] && return
-
-    echo $'new[Create a new Symfony project]'
-    echo $'serve[Run a local web server]'
-
-    which symfony >/dev/null || return
-
-    echo $'status[Get the local web server status]'
-    echo $'open[Open the local project in a browser]'
-    echo $'mails[Open the local project mail catcher web interface in a browser]'
-    echo $'run[Run a program with environment variables set depending on the current context]'
-    echo $'php[Run PHP (version depends on project\'s configuration)]'
-    echo $'composer[Run Composer without memory limit]'
-    echo $'phpunit[Run PHPUnit using the configured PHP version]'
-    echo $'phive[Run PHIVE using the configured PHP version]'
-    echo $'psql[Run psql]'
-}
 
 _sf "$@"
