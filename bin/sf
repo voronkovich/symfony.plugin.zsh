@@ -7,71 +7,73 @@ if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
 fi
 
 main() (
-    case "${1}" in
+    local cmd="${1}" && shift
+
+    case "${cmd}" in
         new)
-            shift && exec app_new "$@"
+            exec app_new "$@"
             ;;
         serve)
-            shift && exec app_serve "$@"
+            exec app_serve "$@"
             ;;
         run)
-            shift && run "$@"
+            run "$@"
             ;;
         php)
-            shift && run_php "$@"
+            run_php "$@"
             ;;
         composer)
-            shift && run_composer "$@"
+            run_composer "$@"
             ;;
         phpunit)
-            shift && run_phpunit "$@"
+            run_phpunit "$@"
             ;;
         phive)
-            shift && run_phive "$@"
+            run_phive "$@"
             ;;
         psql)
             if is_ddev; then
-                shift && exec ddev psql "${@}"
+                exec ddev psql "${@}"
             fi
 
             symfony_cli_required
 
-            shift && exec symfony run psql "$@"
+            exec symfony run psql "$@"
             ;;
         open)
             if is_ddev; then
-                shift && exec ddev launch "$@" 2>/dev/null
+                exec ddev launch "$@" 2>/dev/null
             fi
 
             symfony_cli_required
 
-            shift && exec symfony open:local "$@"
+            exec symfony open:local "$@"
             ;;
-        mails|webmail)
+        mails)
             if is_ddev; then
-                shift && exec ddev launch -m "$@" 2>/dev/null
+                exec ddev launch -m "$@" 2>/dev/null
             fi
 
             symfony_cli_required
 
-            shift && exec symfony open:local:webmail "$@"
+            exec symfony open:local:webmail "$@"
             ;;
         status)
             if is_ddev; then
-                shift && exec ddev status "$@"
+                exec ddev status "$@"
             fi
 
             symfony_cli_required
 
-            shift && exec symfony server:status "$@"
+            exec symfony server:status "$@"
             ;;
     esac
 
-    run_console "$@"
+    run_console "${cmd}" "$@"
 )
 
 app_new() (
-    if command -v symfony >/dev/null; then
+    if symfony_cli_installed; then
         exec symfony new "$@"
     fi
 
