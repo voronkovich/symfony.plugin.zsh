@@ -2,6 +2,10 @@
 
 declare -rx app_name="${0##*/}"
 
+if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
+    export SF_CONSOLE_RUNNER='ddev exec --'
+fi
+
 main() (
     case "${1}" in
         new)
@@ -26,21 +30,37 @@ main() (
             shift && run_phive "$@"
             ;;
         psql)
+            if is_ddev; then
+                shift && exec ddev psql "${@}"
+            fi
+
             symfony_cli_required
 
             shift && exec symfony run psql "$@"
             ;;
         open)
+            if is_ddev; then
+                shift && exec ddev launch "$@" 2>/dev/null
+            fi
+
             symfony_cli_required
 
             shift && exec symfony open:local "$@"
             ;;
         mails|webmail)
+            if is_ddev; then
+                shift && exec ddev launch -m "$@" 2>/dev/null
+            fi
+
             symfony_cli_required
 
             shift && exec symfony open:local:webmail "$@"
             ;;
         status)
+            if is_ddev; then
+                shift && exec ddev status "$@"
+            fi
+
             symfony_cli_required
 
             shift && exec symfony server:status "$@"
@@ -264,6 +284,10 @@ symfony_cli_required() {
 
 symfony_cli_installed() {
     command -v symfony >/dev/null
+}
+
+is_ddev() {
+    [[ "${SF_CONSOLE_RUNNER}" == ddev* ]]
 }
 
 main "$@"
