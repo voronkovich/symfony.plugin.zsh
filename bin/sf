@@ -3,7 +3,7 @@
 declare -rx app_name="${0##*/}"
 
 if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
-    export SF_CONSOLE_RUNNER='ddev exec --'
+    export SF_RUNNER='ddev exec --'
 fi
 
 main() (
@@ -155,8 +155,8 @@ HELP
 )
 
 run() {
-    if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
-       exec "${(@s: :)SF_CONSOLE_RUNNER}" "$@"
+    if [[ -n "${SF_RUNNER}" ]]; then
+       exec "${(@s: :)SF_RUNNER}" "$@"
     fi
 
     if symfony_cli_installed; then
@@ -167,8 +167,8 @@ run() {
 }
 
 run_php() {
-    if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
-       exec "${(@s: :)SF_CONSOLE_RUNNER}" php "$@"
+    if [[ -n "${SF_RUNNER}" ]]; then
+       exec "${(@s: :)SF_RUNNER}" php "$@"
     fi
 
     if symfony_cli_installed; then
@@ -179,8 +179,8 @@ run_php() {
 }
 
 run_composer() {
-    if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
-       exec "${(@s: :)SF_CONSOLE_RUNNER}" composer "$@"
+    if [[ -n "${SF_RUNNER}" ]]; then
+       exec "${(@s: :)SF_RUNNER}" composer "$@"
     fi
 
     if symfony_cli_installed; then
@@ -207,8 +207,8 @@ run_console() {
         exit 1
     fi
 
-    if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
-       exec "${(@s: :)SF_CONSOLE_RUNNER}" bin/console "$@"
+    if [[ -n "${SF_RUNNER}" ]]; then
+       exec "${(@s: :)SF_RUNNER}" bin/console "$@"
     fi
 
     if symfony_cli_installed; then
@@ -222,7 +222,7 @@ run_phive() {
     local phive="$(find_phive)"
 
     if [[ -z "${phive}" ]]; then
-        if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
+        if [[ -n "${SF_RUNNER}" ]]; then
             run phive "$@"
         fi
 
@@ -250,7 +250,7 @@ find_phive() {
         return
     fi
 
-    if [[ -n "${SF_CONSOLE_RUNNER}" ]]; then
+    if [[ -n "${SF_RUNNER}" ]]; then
         return 1
     fi
 
@@ -287,7 +287,7 @@ symfony_cli_installed() {
 }
 
 is_ddev() {
-    [[ "${SF_CONSOLE_RUNNER}" == ddev* ]]
+    [[ "${SF_RUNNER}" == ddev* ]]
 }
 
 main "$@"
