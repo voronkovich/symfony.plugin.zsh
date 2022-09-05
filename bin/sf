@@ -45,9 +45,11 @@ main() (
                 exec ddev launch "$@" 2>/dev/null
             fi
 
-            symfony_cli_required
+            if symfony_cli_installed; then
+                exec symfony open:local "$@"
+            fi
 
-            exec symfony open:local "$@"
+            exec open http://127.0.0.1:8000 2>/dev/null
             ;;
         mails)
             if is_ddev; then
