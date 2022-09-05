@@ -10,11 +10,6 @@ main() (
         serve)
             shift && exec app_serve "$@"
             ;;
-        status)
-            symfony_cli_required
-
-            shift && exec symfony server:status "$@"
-            ;;
         run)
             shift && run "$@"
             ;;
@@ -44,6 +39,11 @@ main() (
             symfony_cli_required
 
             shift && exec symfony open:local:webmail "$@"
+            ;;
+        status)
+            symfony_cli_required
+
+            shift && exec symfony server:status "$@"
             ;;
     esac
 
@@ -100,7 +100,7 @@ HELP
 )
 
 app_serve() (
-    if command -v symfony >/dev/null; then
+    if symfony_cli_installed; then
         exec symfony serve "$@"
     fi
 
@@ -139,7 +139,7 @@ run() {
        exec "${(@s: :)SF_CONSOLE_RUNNER}" "$@"
     fi
 
-    if which symfony >/dev/null; then
+    if symfony_cli_installed; then
         exec symfony run "$@"
     fi
 
@@ -151,7 +151,7 @@ run_php() {
        exec "${(@s: :)SF_CONSOLE_RUNNER}" php "$@"
     fi
 
-    if which symfony >/dev/null; then
+    if symfony_cli_installed; then
         exec symfony php "$@"
     fi
 
@@ -163,7 +163,7 @@ run_composer() {
        exec "${(@s: :)SF_CONSOLE_RUNNER}" composer "$@"
     fi
 
-    if which symfony >/dev/null; then
+    if symfony_cli_installed; then
         exec symfony composer "$@"
     fi
 
@@ -191,7 +191,7 @@ run_console() {
        exec "${(@s: :)SF_CONSOLE_RUNNER}" bin/console "$@"
     fi
 
-    if which symfony >/dev/null; then
+    if symfony_cli_installed; then
         exec symfony console "$@"
     fi
 
@@ -243,9 +243,8 @@ find_phive() {
     return 1
 }
 
-
 symfony_cli_required() {
-    command -v symfony >/dev/null && return
+    symfony_cli_installed && return
 
     echo 'Symfony CLI required: https://symfony.com/download' >&2
 
@@ -261,6 +260,10 @@ symfony_cli_required() {
     fi
 
     exit 1
+}
+
+symfony_cli_installed() {
+    command -v symfony >/dev/null
 }
 
 main "$@"
