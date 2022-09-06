@@ -1,13 +1,11 @@
 #!/usr/bin/env zsh
 
-declare -rx app_name="${0##*/}"
-
-if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
-    export SF_RUNNER='ddev exec --'
-fi
+declare -r app_name="${0##*/}"
 
 main() (
-    local cmd="${1}" && shift
+    declare -r app_runner="$(detect_runner)"
+
+    local cmd="${1}" && shift 2>/dev/null
 
     case "${cmd}" in
         new)
@@ -159,8 +157,8 @@ HELP
 )
 
 run() {
-    if [[ -n "${SF_RUNNER}" ]]; then
-       exec "${(@s: :)SF_RUNNER}" "$@"
+    if [[ -n "${app_runner}" ]]; then
+       exec "${(@s: :)app_runner}" "$@"
     fi
 
     if symfony_cli_installed; then
@@ -171,8 +169,8 @@ run() {
 }
 
 run_php() {
-    if [[ -n "${SF_RUNNER}" ]]; then
-       exec "${(@s: :)SF_RUNNER}" php "$@"
+    if [[ -n "${app_runner}" ]]; then
+       exec "${(@s: :)app_runner}" php "$@"
     fi
 
     if symfony_cli_installed; then
@@ -183,8 +181,8 @@ run_php() {
 }
 
 run_composer() {
-    if [[ -n "${SF_RUNNER}" ]]; then
-       exec "${(@s: :)SF_RUNNER}" composer "$@"
+    if [[ -n "${app_runner}" ]]; then
+       exec "${(@s: :)app_runner}" composer "$@"
     fi
 
     if symfony_cli_installed; then
@@ -211,8 +209,8 @@ run_console() {
         exit 1
     fi
 
-    if [[ -n "${SF_RUNNER}" ]]; then
-       exec "${(@s: :)SF_RUNNER}" bin/console "$@"
+    if [[ -n "${app_runner}" ]]; then
+       exec "${(@s: :)app_runner}" bin/console "$@"
     fi
 
     if symfony_cli_installed; then
@@ -226,7 +224,7 @@ run_phive() {
     local phive="$(find_phive)"
 
     if [[ -z "${phive}" ]]; then
-        if [[ -n "${SF_RUNNER}" ]]; then
+        if [[ -n "${app_runner}" ]]; then
             run phive "$@"
         fi
 
@@ -254,7 +252,7 @@ find_phive() {
         return
     fi
 
-    if [[ -n "${SF_RUNNER}" ]]; then
+    if [[ -n "${app_runner}" ]]; then
         return 1
     fi
 
@@ -291,7 +289,15 @@ symfony_cli_installed() {
 }
 
 is_ddev() {
-    [[ "${SF_RUNNER}" == ddev* ]]
+    [[ "${app_runner}" == ddev* ]]
+}
+
+detect_runner() {
+    if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
+        echo 'ddev exec --'
+    fi
+
+    echo "${SF_RUNNER}"
 }
 
 main "$@"
