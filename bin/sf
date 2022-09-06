@@ -34,10 +34,7 @@ main() (
                 exec ddev psql "${@}"
             fi
 
-            if [[ -n "${app_runner}" ]]; then
-                echo "No supported by current runner: ${app_runner}" >&2
-                exit 1
-            fi
+            not_supported_by_runner
 
             symfony_cli_required
 
@@ -48,10 +45,7 @@ main() (
                 exec ddev launch "$@" 2>/dev/null
             fi
 
-            if [[ -n "${app_runner}" ]]; then
-                echo "No supported by current runner: ${app_runner}" >&2
-                exit 1
-            fi
+            not_supported_by_runner
 
             if symfony_cli_installed; then
                 exec symfony open:local "$@"
@@ -64,10 +58,7 @@ main() (
                 exec ddev launch -m "$@" 2>/dev/null
             fi
 
-            if [[ -n "${app_runner}" ]]; then
-                echo "No supported by current runner: ${app_runner}" >&2
-                exit 1
-            fi
+            not_supported_by_runner
 
             symfony_cli_required
 
@@ -78,10 +69,7 @@ main() (
                 exec ddev status "$@"
             fi
 
-            if [[ -n "${app_runner}" ]]; then
-                echo "No supported by current runner: ${app_runner}" >&2
-                exit 1
-            fi
+            not_supported_by_runner
 
             symfony_cli_required
 
@@ -146,10 +134,7 @@ app_serve() (
         exec ddev start
     fi
 
-    if [[ -n "${app_runner}" ]]; then
-        echo "No supported by current runner: ${app_runner}" >&2
-        exit 1
-    fi
+    not_supported_by_runner
 
     if symfony_cli_installed; then
         exec symfony serve "$@"
@@ -334,6 +319,13 @@ detect_runner() {
 
 unquote() {
     command sed -Ee "s/^\"|'//" -e "s/\"|'$//"
+}
+
+not_supported_by_runner() {
+    if [[ -n "${app_runner}" ]]; then
+        echo "Not supported by current runner: ${app_runner}" >&2
+        exit 1
+    fi
 }
 
 main "$@"
