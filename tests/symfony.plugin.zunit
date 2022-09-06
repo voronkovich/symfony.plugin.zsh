@@ -1,0 +1,30 @@
+#!/usr/bin/env zunit
+
+@test 'Adds binary path to $PATH environment variable' {
+    export PATH="/bin"
+
+    load '../symfony.plugin.zsh'
+
+    assert "${PATH}" same_as "${PWD}/bin:/bin"
+}
+
+@test 'Does not provide completions by default' {
+    fpath=( "${PWD}" )
+
+    load '../symfony.plugin.zsh'
+
+    assert "${PWD}/completions" not_in ${fpath}
+}
+
+@test 'Provides completions if "symfony-complete.plugin.zsh" installed' {
+    fpath=( "${PWD}" )
+    _symfony_complete() {}
+
+    load '../symfony.plugin.zsh'
+
+    assert "${PWD}/completions" in ${fpath}
+}
+
+@setup {
+    compdef() {}
+}
