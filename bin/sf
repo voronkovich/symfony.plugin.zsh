@@ -142,6 +142,15 @@ HELP
 )
 
 app_serve() (
+    if is_ddev; then
+        exec ddev start
+    fi
+
+    if [[ -n "${app_runner}" ]]; then
+        echo "No supported by current runner: ${app_runner}" >&2
+        exit 1
+    fi
+
     if symfony_cli_installed; then
         exec symfony serve "$@"
     fi
