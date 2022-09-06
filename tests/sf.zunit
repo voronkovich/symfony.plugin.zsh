@@ -7,13 +7,22 @@
     assert $output contains 'Symfony console not found: bin/console'
 }
 
-@test 'sf: runs Symfony console if no arguments provided' {
+@test 'sf: runs Symfony console default command if no arguments provided' {
     cd "${FIXTURES_PATH}/app"
 
     run sf
 
     assert $state equals 0
-    assert $output contains 'bin/console'
+    assert $output same_as 'symfony: console '
+}
+
+@test 'sf: runs specified Symfony command' {
+    cd "${FIXTURES_PATH}/app"
+
+    run sf about
+
+    assert $state equals 0
+    assert $output same_as 'symfony: console about'
 }
 
 @test 'sf: allows to set "runner" via SF_RUNNER env' {
@@ -21,19 +30,19 @@
 
     export SF_RUNNER='docker compose exec php'
 
-    run sf
+    run sf debug:router
 
     assert $state equals 0
-    assert $output contains 'docker: compose exec php bin/console'
+    assert $output same_as 'docker: compose exec php php bin/console debug:router'
 }
 
 @test 'sf: allows to set "runner" via .env.local file' {
     cd "${FIXTURES_PATH}/app-env-local"
 
-    run sf
+    run sf debug:container
 
     assert $state equals 0
-    assert $output contains 'docker: compose exec php bin/console'
+    assert $output same_as 'docker: compose exec php php bin/console debug:container'
 }
 
 @test 'sf: detects DDEV "runner" if SF_DDEV env enabled' {
@@ -44,7 +53,7 @@
     run sf
 
     assert $state equals 0
-    assert $output contains 'ddev: exec -- bin/console'
+    assert $output contains 'ddev: exec -- php bin/console'
 }
 
 @setup {

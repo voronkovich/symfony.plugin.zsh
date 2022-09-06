@@ -224,14 +224,14 @@ run_console() {
     fi
 
     if [[ -n "${app_runner}" ]]; then
-       exec "${(@s: :)app_runner}" bin/console "$@"
+       exec "${(@s: :)app_runner}" php bin/console "$@"
     fi
 
     if symfony_cli_installed; then
         exec symfony console "$@"
     fi
 
-    exec bin/console "$@"
+    exec php bin/console "$@"
 }
 
 run_phive() {
