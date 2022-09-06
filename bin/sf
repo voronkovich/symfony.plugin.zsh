@@ -34,6 +34,11 @@ main() (
                 exec ddev psql "${@}"
             fi
 
+            if [[ -n "${app_runner}" ]]; then
+                echo "No supported by current runner: ${app_runner}" >&2
+                exit 1
+            fi
+
             symfony_cli_required
 
             exec symfony run psql "$@"
@@ -41,6 +46,11 @@ main() (
         open)
             if is_ddev; then
                 exec ddev launch "$@" 2>/dev/null
+            fi
+
+            if [[ -n "${app_runner}" ]]; then
+                echo "No supported by current runner: ${app_runner}" >&2
+                exit 1
             fi
 
             if symfony_cli_installed; then
@@ -54,6 +64,11 @@ main() (
                 exec ddev launch -m "$@" 2>/dev/null
             fi
 
+            if [[ -n "${app_runner}" ]]; then
+                echo "No supported by current runner: ${app_runner}" >&2
+                exit 1
+            fi
+
             symfony_cli_required
 
             exec symfony open:local:webmail "$@"
@@ -61,6 +76,11 @@ main() (
         status)
             if is_ddev; then
                 exec ddev status "$@"
+            fi
+
+            if [[ -n "${app_runner}" ]]; then
+                echo "No supported by current runner: ${app_runner}" >&2
+                exit 1
             fi
 
             symfony_cli_required
@@ -221,13 +241,13 @@ run_console() {
 }
 
 run_phive() {
+    if is_ddev; then
+        exec ddev phive "$@"
+    fi
+
     local phive="$(find_phive)"
 
     if [[ -z "${phive}" ]]; then
-        if [[ -n "${app_runner}" ]]; then
-            run phive "$@"
-        fi
-
         echo 'PHIVE required: https://phar.io/#Install' >&2
         if command -v brew > /dev/null; then
             echo '\nHomebrew:\n'
@@ -240,16 +260,14 @@ run_phive() {
 }
 
 find_phive() {
-    local phive="${PWD}/phive.phar"
+    local phive="./phive.phar"
     if [[ -f "${phive}" ]]; then
-        echo "${phive}"
-        return
+        echo "${phive}" && return
     fi
 
-    phive="${PWD}/bin/phive"
+    phive="./bin/phive"
     if [[ -f "${phive}" ]]; then
-        echo "${phive}"
-        return
+        echo "${phive}" && return
     fi
 
     if [[ -n "${app_runner}" ]]; then
@@ -258,8 +276,7 @@ find_phive() {
 
     phive="$(which phive 2>/dev/null)"
     if [[ $? -eq 0 && -f "${phive}" ]]; then
-        echo "${phive}"
-        return
+        echo "${phive}" && return
     fi
 
     return 1
