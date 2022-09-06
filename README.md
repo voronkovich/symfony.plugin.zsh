@@ -1,5 +1,7 @@
 # symfony.plugin.zsh
 
+[![Tests](https://github.com/voronkovich/symfony.plugin.zsh/actions/workflows/tests.yaml/badge.svg)](https://github.com/voronkovich/symfony.plugin.zsh/actions/workflows/tests.yaml)
+
 A zsh plugin for the [Symfony](https://symfony.com/) console and CLI.
 
 ## Installation
