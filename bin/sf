@@ -293,11 +293,21 @@ is_ddev() {
 }
 
 detect_runner() {
+    if [[ -f "${PWD}/.env.local" ]]; then
+        local runner="$(sed -nEe 's/SF_RUNNER=(.*+)?/\1/p' <"${PWD}/.env.local" | unquote)"
+
+        echo ${runner} && return
+    fi
+
     if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
-        echo 'ddev exec --'
+        echo 'ddev exec --' && return
     fi
 
     echo "${SF_RUNNER}"
+}
+
+unquote() {
+    command sed -Ee "s/^\"|'//" -e "s/\"|'$//"
 }
 
 main "$@"
