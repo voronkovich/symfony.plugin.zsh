@@ -242,7 +242,7 @@ run_console() {
 
 run_phive() {
     if is_ddev; then
-        exec ddev phive "$@"
+        exec ddev exec -- phive "$@"
     fi
 
     local phive="$(find_phive)"
