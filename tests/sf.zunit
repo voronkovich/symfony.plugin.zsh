@@ -1,0 +1,55 @@
+#!/usr/bin/env zunit
+
+@test 'sf: shows an error if Symfony console not found' {
+    run sf
+
+    assert $state equals 1
+    assert $output contains 'Symfony console not found: bin/console'
+}
+
+@test 'sf: runs Symfony console if no arguments provided' {
+    cd "${FIXTURES_PATH}/app"
+
+    run sf
+
+    assert $state equals 0
+    assert $output contains 'bin/console'
+}
+
+@test 'sf: allows to set "runner" via SF_RUNNER env' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker compose exec php'
+
+    run sf
+
+    assert $state equals 0
+    assert $output contains 'docker: compose exec php bin/console'
+}
+
+@test 'sf: allows to set "runner" via .env.local file' {
+    cd "${FIXTURES_PATH}/app-env-local"
+
+    run sf
+
+    assert $state equals 0
+    assert $output contains 'docker: compose exec php bin/console'
+}
+
+@test 'sf: detects DDEV "runner" if SF_DDEV env enabled' {
+    cd "${FIXTURES_PATH}/app-ddev"
+
+    export SF_DDEV='1'
+
+    run sf
+
+    assert $state equals 0
+    assert $output contains 'ddev: exec -- bin/console'
+}
+
+@setup {
+    path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
+    FIXTURES_PATH="${PWD}/tests/_fixtures"
+    unset SF_RUNNER
+    unset SF_DDEV
+}
