@@ -38,7 +38,9 @@ This plugin provides some usefull commands and shortcuts:
 - `sf phpunit` runs a [PHPUnit](https://phpunit.de/);
 - `sf phive` runs a [PHIVE](https://phar.io/);
 - `sf psql` runs a [psql](https://www.postgresql.org/docs/current/app-psql.html) PostgreSQL client;
-- `sfservice` shows a service definition. It has an autocompletion for service ids;
+- `sf open` opens a local project in a browser;
+- `sf mails` open a local project mail catcher web interface in a browser;
+- `sfservice` shows a service definition. It has an autocompletion for services ids;
 - `sfroute` shows a route definition. It has autocompletion for routes names;
 - `sfconfig` shows a container extensions configuration. It has autocompletion for extensions names;
 
