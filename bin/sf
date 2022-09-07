@@ -296,7 +296,7 @@ symfony_cli_required() {
 }
 
 symfony_cli_installed() {
-    command -v symfony >/dev/null
+    [[ "${SF_SYMFONY}" != '0' ]] && command -v symfony >/dev/null
 }
 
 is_ddev() {

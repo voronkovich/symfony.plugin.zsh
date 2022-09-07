@@ -8,15 +8,28 @@
 }
 
 @test 'sf: runs Symfony console default command if no arguments provided' {
+    export SF_SYMFONY=0
+
     cd "${FIXTURES_PATH}/app"
 
     run sf
 
     assert $state equals 0
-    assert $output same_as 'symfony: console '
+    assert $output same_as 'php: bin/console '
 }
 
 @test 'sf: runs specified Symfony command' {
+    export SF_SYMFONY=0
+
+    cd "${FIXTURES_PATH}/app"
+
+    run sf about
+
+    assert $state equals 0
+    assert $output same_as 'php: bin/console about'
+}
+
+@test 'sf: use Symfony CLI if it is installed' {
     cd "${FIXTURES_PATH}/app"
 
     run sf about
@@ -50,10 +63,10 @@
 
     export SF_DDEV='1'
 
-    run sf
+    run sf debug:container --show-envs
 
     assert $state equals 0
-    assert $output contains 'ddev: exec -- php bin/console'
+    assert $output contains 'ddev: exec -- php bin/console debug:container --show-envs'
 }
 
 @setup {
@@ -61,4 +74,5 @@
     FIXTURES_PATH="${PWD}/tests/_fixtures"
     unset SF_RUNNER
     unset SF_DDEV
+    unset SF_SYMFONY
 }
