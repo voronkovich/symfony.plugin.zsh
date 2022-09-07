@@ -57,13 +57,7 @@ main() (
             exec symfony open:local:webmail "$@"
             ;;
         status)
-            try_ddev status "$@"
-
-            not_supported_by_runner
-
-            symfony_cli_required
-
-            exec symfony server:status "$@"
+            show_status "$@"
             ;;
     esac
 
@@ -219,8 +213,28 @@ run_phive() {
     run_php "${phive}" "$@"
 }
 
+show_status() {
+    try_ddev status "$@"
+
+    if [[ -n "${app_runner}" ]]; then
+        echo "Runner: ${app_runner}\n"
+        exec runner_run php -v
+    fi
+
+    if symfony_cli_installed; then
+        echo "Symfony binary: $(which symfony)\n"
+        symfony php -v
+        echo
+        symfony server:status "$@"
+        exit
+    fi
+
+    echo "PHP binary: $(which php)\n"
+    exec php -v
+}
+
 try_runner() {
-    [[ -n "${app_runner}" ]] && exec "${(@s: :)app_runner}" "$@"
+    [[ -n "${app_runner}" ]] && exec runner_run "$@"
 }
 
 try_ddev() {
@@ -229,6 +243,10 @@ try_ddev() {
 
 try_symfony() {
     symfony_cli_installed && exec symfony "$@"
+}
+
+runner_run() {
+    "${(@s: :)app_runner}" "$@"
 }
 
 find_phive() {
