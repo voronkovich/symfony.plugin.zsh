@@ -30,9 +30,7 @@ main() (
             run_phive "$@"
             ;;
         psql)
-            if is_ddev; then
-                exec ddev psql "${@}"
-            fi
+            try_ddev psql "$@"
 
             not_supported_by_runner
 
@@ -41,22 +39,16 @@ main() (
             exec symfony run psql "$@"
             ;;
         open)
-            if is_ddev; then
-                exec ddev launch "$@" 2>/dev/null
-            fi
+            try_ddev launch "$@" 2>/dev/null
 
             not_supported_by_runner
 
-            if symfony_cli_installed; then
-                exec symfony open:local "$@"
-            fi
+            try_symfony open:local "$@"
 
-            exec open http://127.0.0.1:8000 2>/dev/null
+            exec open 'http://127.0.0.1:8000' 2>/dev/null
             ;;
         mails)
-            if is_ddev; then
-                exec ddev launch -m "$@" 2>/dev/null
-            fi
+            try_ddev launch -m "$@" 2>/dev/null
 
             not_supported_by_runner
 
@@ -65,9 +57,7 @@ main() (
             exec symfony open:local:webmail "$@"
             ;;
         status)
-            if is_ddev; then
-                exec ddev status "$@"
-            fi
+            try_ddev status "$@"
 
             not_supported_by_runner
 
@@ -81,9 +71,7 @@ main() (
 )
 
 app_new() (
-    if symfony_cli_installed; then
-        exec symfony new "$@"
-    fi
+    try_symfony new "$@"
 
     local help version webapp docker
 
@@ -130,15 +118,11 @@ HELP
 )
 
 app_serve() (
-    if is_ddev; then
-        exec ddev start
-    fi
+    try_ddev start
 
     not_supported_by_runner
 
-    if symfony_cli_installed; then
-        exec symfony serve "$@"
-    fi
+    try_symfony serve "$@"
 
     local help port=('--port' '8000') root=('--document-root' 'public')
 
@@ -171,37 +155,25 @@ HELP
 )
 
 run() {
-    if [[ -n "${app_runner}" ]]; then
-       exec "${(@s: :)app_runner}" "$@"
-    fi
+    try_runner "$@"
 
-    if symfony_cli_installed; then
-        exec symfony run "$@"
-    fi
+    try_symfony run "$@"
 
     exec "$@"
 }
 
 run_php() {
-    if [[ -n "${app_runner}" ]]; then
-       exec "${(@s: :)app_runner}" php "$@"
-    fi
+    try_runner php "$@"
 
-    if symfony_cli_installed; then
-        exec symfony php "$@"
-    fi
+    try_symfony php "$@"
 
     exec php "$@"
 }
 
 run_composer() {
-    if [[ -n "${app_runner}" ]]; then
-       exec "${(@s: :)app_runner}" composer "$@"
-    fi
+    try_runner composer "$@"
 
-    if symfony_cli_installed; then
-        exec symfony composer "$@"
-    fi
+    try_symfony composer "$@"
 
     exec composer "$@"
 }
@@ -223,21 +195,15 @@ run_console() {
         exit 1
     fi
 
-    if [[ -n "${app_runner}" ]]; then
-       exec "${(@s: :)app_runner}" php bin/console "$@"
-    fi
+    try_runner php bin/console "$@"
 
-    if symfony_cli_installed; then
-        exec symfony console "$@"
-    fi
+    try_symfony console "$@"
 
     exec php bin/console "$@"
 }
 
 run_phive() {
-    if is_ddev; then
-        exec ddev exec -- phive "$@"
-    fi
+    try_ddev exec -- phive "$@"
 
     local phive="$(find_phive)"
 
@@ -251,6 +217,18 @@ run_phive() {
     fi
 
     run_php "${phive}" "$@"
+}
+
+try_runner() {
+    [[ -n "${app_runner}" ]] && exec "${(@s: :)app_runner}" "$@"
+}
+
+try_ddev() {
+    is_ddev && exec ddev "$@"
+}
+
+try_symfony() {
+    symfony_cli_installed && exec symfony "$@"
 }
 
 find_phive() {
