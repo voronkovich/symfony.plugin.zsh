@@ -248,11 +248,7 @@ try_ddev() {
 }
 
 try_symfony_cli() {
-    if is_symfony_cli_disabled || (( ! $+commands[symfony] )); then
-        return
-    fi
-
-    exec symfony "$@"
+    is_symfony_cli_enabled && (( $+commands[symfony] )) && exec symfony "$@"
 }
 
 runner_run() {
@@ -305,8 +301,12 @@ symfony_cli_instructions() {
     fi
 }
 
-is_symfony_cli_disabled() {
-    [[ "${SF_SYMFONY_CLI}" == 'disabled' ]]
+is_symfony_cli_enabled() {
+    [[ "${SF_SYMFONY_CLI:-enabled}" != 'disabled' ]]
+}
+
+is_ddev_autodetect_enabled() {
+    [[ "${SF_DDEV_AUTODETECT:-disabled}" != 'disabled' ]]
 }
 
 is_ddev() {
@@ -320,7 +320,7 @@ detect_runner() {
         echo ${runner} && return
     fi
 
-    if [[ "${SF_DDEV}" == '1' && -d "${PWD}/.ddev" ]]; then
+    if is_ddev_autodetect_enabled && [[ -d "${PWD}/.ddev" ]]; then
         echo 'ddev exec --' && return
     fi
 

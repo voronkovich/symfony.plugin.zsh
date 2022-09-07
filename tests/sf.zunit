@@ -87,18 +87,18 @@
     assert $output same_as 'docker: compose exec php php bin/console debug:container'
 }
 
-@test 'sf: detects DDEV "runner" if SF_DDEV env enabled' {
+@test 'sf: detects DDEV "runner" if SF_DDEV_AUTODETECT env enabled' {
     cd "${FIXTURES_PATH}/app-ddev"
 
     export SF_SYMFONY_CLI=disabled
 
+    export SF_DDEV_AUTODETECT=disabled
     run sf debug:container --show-envs
 
     assert $state equals 0
     assert $output contains 'php: bin/console debug:container --show-envs'
 
-    export SF_DDEV='1'
-
+    export SF_DDEV_AUTODETECT=enabled
     run sf debug:container --show-envs
 
     assert $state equals 0
@@ -109,7 +109,7 @@
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
     unset SF_RUNNER
-    unset SF_DDEV
+    unset SF_DDEV_AUTODETECT
     unset SF_SYMFONY_CLI
     unset SF_CONSOLE
 }
