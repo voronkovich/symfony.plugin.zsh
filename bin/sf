@@ -209,7 +209,7 @@ run_phive() {
 
     if [[ -z "${phive}" ]]; then
         echo 'PHIVE required: https://phar.io/#Install' >&2
-        if command -v brew > /dev/null; then
+        if (( $+commands[brew] )); then
             echo '\nHomebrew:\n'
             echo '  brew install phive'
         fi
@@ -281,24 +281,28 @@ find_phive() {
 symfony_cli_required() {
     symfony_cli_installed && return
 
-    echo 'Symfony CLI required: https://symfony.com/download' >&2
-
-    if command -v brew > /dev/null; then
-        echo '\nHomebrew:\n'
-        echo '  brew install symfony-cli/tap/symfony-cli'
-    fi
-
-    if command -v apt > /dev/null; then
-        echo '\nAPT:\n'
-        echo "  curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash"
-        echo '  sudo apt install symfony-cli'
-    fi
+    symfony_cli_instructions
 
     exit 1
 }
 
 symfony_cli_installed() {
-    [[ "${SF_SYMFONY}" != '0' ]] && command -v symfony >/dev/null
+    [[ "${SF_SYMFONY}" != '0' ]] && (( $+commands[symfony] ))
+}
+
+symfony_cli_instructions() {
+    echo 'Symfony CLI required: https://symfony.com/download' >&2
+
+    if (( $+commands[brew] )); then
+        echo '\nHomebrew:\n'
+        echo '  brew install symfony-cli/tap/symfony-cli'
+    fi
+
+    if (( $+commands[apt] )); then
+        echo '\nAPT:\n'
+        echo "  curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash"
+        echo '  sudo apt install symfony-cli'
+    fi
 }
 
 is_ddev() {
