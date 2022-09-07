@@ -305,7 +305,7 @@ is_ddev() {
 
 detect_runner() {
     if [[ -f "${PWD}/.env.local" ]]; then
-        local runner="$(sed -nEe 's/SF_RUNNER=(.*+)?/\1/p' <"${PWD}/.env.local" | unquote)"
+        local runner="$(sed -nEe 's/^SF_RUNNER=(.*)$/\1/p' <"${PWD}/.env.local" | unquote)"
 
         echo ${runner} && return
     fi
