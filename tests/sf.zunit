@@ -8,7 +8,7 @@
 }
 
 @test 'sf: runs default console command if no arguments provided' {
-    export SF_SYMFONY=0
+    export SF_SYMFONY_CLI=disabled
 
     cd "${FIXTURES_PATH}/app"
 
@@ -19,7 +19,7 @@
 }
 
 @test 'sf: runs specified console command' {
-    export SF_SYMFONY=0
+    export SF_SYMFONY_CLI=disabled
 
     cd "${FIXTURES_PATH}/app"
 
@@ -29,7 +29,7 @@
     assert $output same_as 'php: bin/console about'
 }
 
-@test 'sf: use Symfony CLI if it is installed' {
+@test 'sf: uses Symfony CLI if it is installed' {
     cd "${FIXTURES_PATH}/app"
 
     run sf about
@@ -39,7 +39,7 @@
 }
 
 @test 'sf: allows to set console binary via SF_CONSOLE env' {
-    export SF_SYMFONY=0
+    export SF_SYMFONY_CLI=disabled
     export SF_CONSOLE=artisan
 
     cd "${FIXTURES_PATH}/app-laravel"
@@ -86,6 +86,6 @@
     FIXTURES_PATH="${PWD}/tests/_fixtures"
     unset SF_RUNNER
     unset SF_DDEV
-    unset SF_SYMFONY
+    unset SF_SYMFONY_CLI
     unset SF_CONSOLE
 }

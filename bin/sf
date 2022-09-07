@@ -43,7 +43,7 @@ main() (
 
             not_supported_by_runner
 
-            try_symfony open:local "$@"
+            try_symfony_cli open:local "$@"
 
             exec open 'http://127.0.0.1:8000' 2>/dev/null
             ;;
@@ -65,7 +65,7 @@ main() (
 )
 
 app_new() (
-    try_symfony new "$@"
+    try_symfony_cli new "$@"
 
     local help version webapp docker
 
@@ -116,7 +116,7 @@ app_serve() (
 
     not_supported_by_runner
 
-    try_symfony serve "$@"
+    try_symfony_cli serve "$@"
 
     local help port=('--port' '8000') root=('--document-root' 'public')
 
@@ -151,7 +151,7 @@ HELP
 run() {
     try_runner "$@"
 
-    try_symfony run "$@"
+    try_symfony_cli run "$@"
 
     exec "$@"
 }
@@ -159,7 +159,7 @@ run() {
 run_php() {
     try_runner php "$@"
 
-    try_symfony php "$@"
+    try_symfony_cli php "$@"
 
     exec php "$@"
 }
@@ -167,7 +167,7 @@ run_php() {
 run_composer() {
     try_runner composer "$@"
 
-    try_symfony composer "$@"
+    try_symfony_cli composer "$@"
 
     exec composer "$@"
 }
@@ -194,9 +194,9 @@ run_console() {
     try_runner php "${console}" "$@"
 
     if [[ -z "${SF_CONSOLE}" ]]; then
-        try_symfony console "$@"
+        try_symfony_cli console "$@"
     else
-        try_symfony php "${console}" "$@"
+        try_symfony_cli php "${console}" "$@"
     fi
 
     exec php "${console}" "$@"
@@ -227,7 +227,7 @@ show_status() {
         exec runner_run php -v
     fi
 
-    if symfony_cli_installed; then
+    if (( $+commands[symfony] )); then
         echo "Symfony binary: $(which symfony)\n"
         symfony php -v
         echo
@@ -247,8 +247,12 @@ try_ddev() {
     is_ddev && exec ddev "$@"
 }
 
-try_symfony() {
-    symfony_cli_installed && exec symfony "$@"
+try_symfony_cli() {
+    if is_symfony_cli_disabled || (( ! $+commands[symfony] )); then
+        return
+    fi
+
+    exec symfony "$@"
 }
 
 runner_run() {
@@ -279,15 +283,11 @@ find_phive() {
 }
 
 symfony_cli_required() {
-    symfony_cli_installed && return
+    (( $+commands[symfony])) || return
 
     symfony_cli_instructions
 
     exit 1
-}
-
-symfony_cli_installed() {
-    [[ "${SF_SYMFONY}" != '0' ]] && (( $+commands[symfony] ))
 }
 
 symfony_cli_instructions() {
@@ -303,6 +303,10 @@ symfony_cli_instructions() {
         echo "  curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash"
         echo '  sudo apt install symfony-cli'
     fi
+}
+
+is_symfony_cli_disabled() {
+    [[ "${SF_SYMFONY_CLI}" == 'disabled' ]]
 }
 
 is_ddev() {
