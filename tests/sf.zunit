@@ -7,6 +7,32 @@
     assert $output contains 'Console not found: bin/console'
 }
 
+@test 'sf: uses Symfony CLI if it is installed' {
+    cd "${FIXTURES_PATH}/app"
+
+    run sf about
+
+    assert $state equals 0
+    assert $output same_as 'symfony: console about'
+}
+
+@test 'sf: allows to disable Symfony CLI via SF_SYMFONY_CLI env' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_SYMFONY_CLI=enabled
+    run sf list --no-ansi
+
+    assert $state equals 0
+    assert $output contains 'symfony: console list --no-ansi'
+
+    export SF_SYMFONY_CLI=disabled
+    run sf list --no-ansi
+
+    assert $state equals 0
+    assert $output contains 'php: bin/console list --no-ansi'
+
+}
+
 @test 'sf: runs default console command if no arguments provided' {
     export SF_SYMFONY_CLI=disabled
 
@@ -27,15 +53,6 @@
 
     assert $state equals 0
     assert $output same_as 'php: bin/console about'
-}
-
-@test 'sf: uses Symfony CLI if it is installed' {
-    cd "${FIXTURES_PATH}/app"
-
-    run sf about
-
-    assert $state equals 0
-    assert $output same_as 'symfony: console about'
 }
 
 @test 'sf: allows to set console binary via SF_CONSOLE env' {
@@ -72,6 +89,13 @@
 
 @test 'sf: detects DDEV "runner" if SF_DDEV env enabled' {
     cd "${FIXTURES_PATH}/app-ddev"
+
+    export SF_SYMFONY_CLI=disabled
+
+    run sf debug:container --show-envs
+
+    assert $state equals 0
+    assert $output contains 'php: bin/console debug:container --show-envs'
 
     export SF_DDEV='1'
 
