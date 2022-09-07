@@ -184,16 +184,22 @@ run_phpunit() {
 }
 
 run_console() {
-    if [[ ! -f bin/console ]]; then
-        echo 'Symfony console not found: bin/console' >&2
+    declare -r console="${SF_CONSOLE:-bin/console}"
+
+    if [[ ! -f ${console} ]]; then
+        echo "Console not found: ${console}" >&2
         exit 1
     fi
 
-    try_runner php bin/console "$@"
+    try_runner php "${console}" "$@"
 
-    try_symfony console "$@"
+    if [[ -z "${SF_CONSOLE}" ]]; then
+        try_symfony console "$@"
+    else
+        try_symfony php "${console}" "$@"
+    fi
 
-    exec php bin/console "$@"
+    exec php "${console}" "$@"
 }
 
 run_phive() {

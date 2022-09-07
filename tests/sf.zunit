@@ -1,13 +1,13 @@
 #!/usr/bin/env zunit
 
-@test 'sf: shows an error if Symfony console not found' {
+@test 'sf: shows an error if console not found' {
     run sf
 
     assert $state equals 1
-    assert $output contains 'Symfony console not found: bin/console'
+    assert $output contains 'Console not found: bin/console'
 }
 
-@test 'sf: runs Symfony console default command if no arguments provided' {
+@test 'sf: runs default console command if no arguments provided' {
     export SF_SYMFONY=0
 
     cd "${FIXTURES_PATH}/app"
@@ -18,7 +18,7 @@
     assert $output same_as 'php: bin/console '
 }
 
-@test 'sf: runs specified Symfony command' {
+@test 'sf: runs specified console command' {
     export SF_SYMFONY=0
 
     cd "${FIXTURES_PATH}/app"
@@ -36,6 +36,18 @@
 
     assert $state equals 0
     assert $output same_as 'symfony: console about'
+}
+
+@test 'sf: allows to set console binary via SF_CONSOLE env' {
+    export SF_SYMFONY=0
+    export SF_CONSOLE=artisan
+
+    cd "${FIXTURES_PATH}/app-laravel"
+
+    run sf about
+
+    assert $state equals 0
+    assert $output same_as 'php: artisan about'
 }
 
 @test 'sf: allows to set "runner" via SF_RUNNER env' {
@@ -75,4 +87,5 @@
     unset SF_RUNNER
     unset SF_DDEV
     unset SF_SYMFONY
+    unset SF_CONSOLE
 }
