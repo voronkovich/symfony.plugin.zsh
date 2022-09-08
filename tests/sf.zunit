@@ -109,10 +109,23 @@
     assert $output contains 'symfony: console debug:container --show-envs'
 }
 
+@test 'sf: Allows to disable DDEV via SF_DDEV=off' {
+    cd "${FIXTURES_PATH}/app-ddev"
+
+    export SF_DDEV=off
+    export SF_RUNNER='ddev exec --'
+
+    run sf open
+
+    assert $state equals 1
+    assert $output contains 'Not supported by current runner: ddev exec --'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
     unset SF_RUNNER
+    unset SF_DDEV
     unset SF_DDEV_AUTODETECT
     unset SF_SYMFONY_CLI
     unset SF_CONSOLE

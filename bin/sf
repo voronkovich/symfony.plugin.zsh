@@ -294,11 +294,15 @@ symfony_cli_instructions() {
 }
 
 try_ddev() {
-    is_ddev && exec ddev "$@"
+    is_ddev_enabled && is_ddev && exec ddev "$@"
 }
 
 is_ddev() {
     [[ "${app_runner}" == ddev* ]]
+}
+
+is_ddev_enabled() {
+    is_feature_enabled "${SF_DDEV:-on}"
 }
 
 is_ddev_autodetect_enabled() {
@@ -320,8 +324,8 @@ detect_runner() {
         echo ${runner} && return
     fi
 
-    if is_ddev_autodetect_enabled && [[ -d "${PWD}/.ddev" ]]; then
-        echo 'ddev exec --' && return
+    if is_ddev_enabled && is_ddev_autodetect_enabled; then
+        [[ -d "${PWD}/.ddev" ]] && echo 'ddev exec --' && return
     fi
 
     echo "${SF_RUNNER}"
