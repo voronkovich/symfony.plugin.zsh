@@ -2,11 +2,11 @@
 
 [![Tests](https://github.com/voronkovich/symfony.plugin.zsh/actions/workflows/tests.yaml/badge.svg)](https://github.com/voronkovich/symfony.plugin.zsh/actions/workflows/tests.yaml)
 
-A zsh plugin for the [Symfony](https://symfony.com/) console and CLI.
+A zsh plugin for the [Symfony](https://symfony.com/) console.
 
 ## Installation
 
-If yout need an autocompletion, please, install [symfony-complete.plugin.zsh](https://github.com/voronkovich/symfony-complete.plugin.zsh).
+If yout need an autocompletion, please, install [symfony-complete.plugin.zsh](https://github.com/voronkovich/symfony-complete.plugin.zsh) first.
 
 [Antigen](https://github.com/zsh-users/antigen):
 
@@ -46,14 +46,73 @@ This plugin provides some usefull commands and shortcuts:
 
 ## Containers support (Docker/DDEV and etc.)
 
-If you need to run you app inside a Docker Container, you should configure a "runner", by setting a special `SF_RUNNER` environment variable. You can place it in your `.zshrc` or in a local `.env.local` file inside you project directory:
+If you run your app inside a [Docker](https://www.docker.com/) container, you'll probably need to configure a "runner": a command that executes a code. You can do it by setting a special `SF_RUNNER` environment variable. Just place it in your `.zshrc` or in a local `.env.local` file inside your project's root:
 
 ```sh
-# Should work with https://github.com/dunglas/symfony-docker
-SF_RUNNER="docker-compose exec php"
+# "symfony" is a service name in a `docker-compose.yml`
+SF_RUNNER="docker-compose exec symfony --"
 ```
 
-If you use a [DDEV](https://ddev.com/) you don'n need to configure anything at all. It works out of the box.
+But, if you use a [DDEV](https://ddev.com/) or a [dunglas/symfony-docker](https://github.com/dunglas/symfony-docker) you don't need to configure anything. All works out of the box.
+
+## Configuration
+
+Command `sf` can be configured via following environment variables:
+
+- `SF_RUNNER`: sets command runner
+
+   **Allowed values**: any valid command
+
+   **Default:** configured automatically
+
+   ```sh
+   export SF_RUNNER='vendor/bin/sail'
+   ```
+
+- `SF_CONSOLE`: sets the console binary
+
+   **Allowed values**: any valid path to binary file
+
+   **Default:** "bin/console"
+
+   ```sh
+   export SF_CONSOLE='artisan'
+   ```
+- `SF_DDEV`: enables/disables DDEV autodetection.
+
+   **Allowed values:** "on", "off"
+
+   **Default:** "on"
+
+   When enabled `sf` will check project's folder for existence of `.ddev` directory and configure runner to use `ddev exec`
+
+   ```sh
+   export SF_DDEV=off
+   ```
+
+- `SF_SYMFONY_DOCKER` enbales/disables Docker autodetection
+
+   **Allowed values:** "on", "off"
+
+   **Default:** "on"
+
+   When enabled `sf` will try to detect a proper runner from a `docker-compose.yml` or `docker-compose.yaml` files. If the file exists, `sf` will try to find common service names: `php` and `app` and automatically configure runner e.g. `docker compose exec php --`
+
+   ```sh
+   export SF_DOCKER=off
+   ```
+
+- `SF_SYMFONY_CLI` enbales/disables [Symfony CLI](https://symfony.com/download) usage 
+
+   **Allowed values:** "on", "off"
+
+   **Default:** "on"
+
+   When enabled `sf` will try to detect if [Symfony CLI](https://symfony.com/download) installed and use it as the runner instead of local `php`
+
+   ```sh
+   export SF_SYMFONY_CLI=off
+   ```
 
 ## Ascii movie
 
