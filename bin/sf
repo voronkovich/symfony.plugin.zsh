@@ -183,22 +183,55 @@ phpunit_run() {
     declare -r phpunit="$(phpunit_find)"
 
     if [[ -z "${phpunit}" ]]; then
-        echo 'PHPUnit not found: https://phpunit.de' >&2
-        echo '\nInstallation:\n'
-        echo "  ${app_name} composer require --dev phpunit/phpunit"
-        return 1
+        run phpunit "$@"
+        return $?
     fi
 
     php_run "${phpunit}" "$@"
 }
 
 phpunit_find() {
-    for path in 'tools' 'bin' 'vendor/bin'; do
+    for path in 'bin' 'vendor/bin'; do
         if [[ -f "${path}/phpunit" ]]; then
             echo "${path}/phpunit"
             return
         fi
     done
+
+    return 1
+}
+
+phive_run() {
+    local phive="$(phive_find)"
+
+    if [[ -z "${phive}" ]]; then
+        run phive "$@"
+        return $?
+    fi
+
+    php_run "${phive}" "$@"
+}
+
+phive_find() {
+    for path in 'bin' '.'; do
+        if [[ -f "${path}/phive" ]]; then
+            echo "${path}/phive"
+            return
+        fi
+        if [[ -f "${path}/phive.phar" ]]; then
+            echo "${path}/phive.phar"
+            return
+        fi
+    done
+
+    if ! runner_is 'local' || runner_is 'symfony'; then
+        return 1
+    fi
+
+    phive="$(which phive 2>/dev/null)"
+    if [[ $? -eq 0 && -f "${phive}" ]]; then
+        echo "${phive}" && return
+    fi
 
     return 1
 }
@@ -219,49 +252,6 @@ console_run() {
 
 console_detect() {
     echo "${SF_CONSOLE:-bin/console}"
-}
-
-phive_run() {
-    if runner_is 'ddev'; then
-       ddev exec -- phive "$@"
-       return $?
-    fi
-
-    local phive="$(phive_find)"
-
-    if [[ -z "${phive}" ]]; then
-        echo 'PHIVE not found: https://phar.io/#Install' >&2
-        if  runner_is 'local' || runner_is 'symfony' && (( $+commands[brew] )); then
-            echo '\nHomebrew:\n'
-            echo '  brew install phive'
-        fi
-        return 1
-    fi
-
-    php_run "${phive}" "$@"
-}
-
-phive_find() {
-    local phive="./phive.phar"
-    if [[ -f "${phive}" ]]; then
-        echo "${phive}" && return
-    fi
-
-    phive="./bin/phive"
-    if [[ -f "${phive}" ]]; then
-        echo "${phive}" && return
-    fi
-
-    if [[ -n "${app_runner}" ]]; then
-        return 1
-    fi
-
-    phive="$(which phive 2>/dev/null)"
-    if [[ $? -eq 0 && -f "${phive}" ]]; then
-        echo "${phive}" && return
-    fi
-
-    return 1
 }
 
 psql_run() {
