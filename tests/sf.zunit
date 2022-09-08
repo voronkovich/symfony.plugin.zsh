@@ -87,6 +87,23 @@
     assert $output same_as 'docker: compose exec php php bin/console debug:container'
 }
 
+@test 'sf: runs commands locally if could not detect runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_SYMFONY_CLI=off
+    export SF_DDEV=off
+
+    run sf status
+
+    assert $state equals 0
+    assert $lines[1] same_as 'Runner: local'
+
+    run sf about
+
+    assert $state equals 0
+    assert $output same_as 'php: bin/console about'
+}
+
 @test 'sf: detects DDEV automatically' {
     cd "${FIXTURES_PATH}/app-ddev"
 

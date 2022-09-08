@@ -297,15 +297,16 @@ show_status() {
         echo "PHP binary: $(which php)\n"
     fi
 
-    php_run --version && echo
+    php_run --version
 
     if runner_is 'ddev'; then
+        echo
         ddev status "$@"
         return $?
     fi
 
     if runner_is 'symfony'; then
-        echo "Symfony binary: $(which symfony)\n"
+        echo "\nSymfony binary: $(which symfony)\n"
         symfony server:status "$@"
         return $?
     fi
