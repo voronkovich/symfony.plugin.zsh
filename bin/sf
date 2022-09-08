@@ -183,7 +183,7 @@ phpunit_run() {
     declare -r phpunit="$(phpunit_find)"
 
     if [[ -z "${phpunit}" ]]; then
-        echo 'PHPUnit not found.' >&2
+        echo 'PHPUnit not found: https://phpunit.de' >&2
         echo '\nInstallation:\n'
         echo "  ${app_name} composer require --dev phpunit/phpunit"
         return 1
@@ -230,8 +230,8 @@ phive_run() {
     local phive="$(phive_find)"
 
     if [[ -z "${phive}" ]]; then
-        echo 'PHIVE required: https://phar.io/#Install' >&2
-        if (( $+commands[brew] )); then
+        echo 'PHIVE not found: https://phar.io/#Install' >&2
+        if  runner_is 'local' || runner_is 'symfony' && (( $+commands[brew] )); then
             echo '\nHomebrew:\n'
             echo '  brew install phive'
         fi
