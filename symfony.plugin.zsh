@@ -1,7 +1,7 @@
 alias sfprod='sf --env=prod'
 alias sfdev='sf --env=dev'
 
-export PATH="${0:A:h}/bin:${PATH}"
+path=("${0:A:h}/bin" $path)
 
 if [[ "$(type -w _symfony_complete)" == '_symfony_complete: function' ]]; then
     fpath=("${0:A:h}/completions" $fpath)
