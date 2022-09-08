@@ -109,6 +109,10 @@ HELP
 }
 
 app_serve() {
+    if runner_is 'docker' || runner_is 'docker-compose'; then
+        exec "$(docker_compose_command)" up "$@"
+    fi
+
     if runner_is 'ddev'; then
         exec ddev start "$@"
     fi
