@@ -302,7 +302,7 @@ is_ddev() {
 }
 
 is_ddev_autodetect_enabled() {
-    is_feature_enabled "${SF_DDEV_AUTODETECT:-disabled}"
+    is_feature_enabled "${SF_DDEV_AUTODETECT:-enabled}"
 }
 
 try_runner() {
@@ -335,7 +335,7 @@ not_supported_by_runner() {
 }
 
 is_feature_enabled() {
-    [[ ! "${1}" =~ '^(0|no|off|disabled)$' ]]
+    [[ ! "${1}" =~ '^(0|no|off|false|disabled)$' ]]
 }
 
 unquote() {

@@ -53,12 +53,7 @@ If you need to run you app inside a Docker Container, you should configure a "ru
 SF_RUNNER="docker-compose exec php"
 ```
 
-If you use a [DDEV](https://ddev.com/) you can enable DDEV autodetection by setting `SF_DDEV_AUTODETECT` env in your `.zshrc`:
-```sh
-# .zshrc
-# `sf` will detect DDEV by checking special `.ddev` directory inside project's root
-SF_DDEV_AUTODETECT=enabled
-```
+If you use a [DDEV](https://ddev.com/) you don'n need to configure anything at all. It works out of the box.
 
 ## Ascii movie
 

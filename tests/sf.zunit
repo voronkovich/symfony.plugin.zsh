@@ -87,22 +87,26 @@
     assert $output same_as 'docker: compose exec php php bin/console debug:container'
 }
 
-@test 'sf: detects DDEV "runner" if SF_DDEV_AUTODETECT env enabled' {
+@test 'sf: detects DDEV "runner" automatically' {
     cd "${FIXTURES_PATH}/app-ddev"
 
     export SF_SYMFONY_CLI=disabled
-
-    export SF_DDEV_AUTODETECT=disabled
-    run sf debug:container --show-envs
-
-    assert $state equals 0
-    assert $output contains 'php: bin/console debug:container --show-envs'
 
     export SF_DDEV_AUTODETECT=enabled
     run sf debug:container --show-envs
 
     assert $state equals 0
     assert $output contains 'ddev: exec -- php bin/console debug:container --show-envs'
+}
+
+@test 'sf: Allows to disable DDEV autodetection via SF_DDEV_AUTODETECT env' {
+    cd "${FIXTURES_PATH}/app-ddev"
+
+    export SF_DDEV_AUTODETECT=disabled
+    run sf debug:container --show-envs
+
+    assert $state equals 0
+    assert $output contains 'symfony: console debug:container --show-envs'
 }
 
 @setup {
