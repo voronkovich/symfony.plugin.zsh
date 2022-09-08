@@ -4,6 +4,7 @@ declare -r app_name="${0##*/}"
 
 main() (
     declare -r app_runner="$(runner_detect)"
+    declare -r app_console="$(console_detect)"
 
     local cmd="${1}" && shift 2>/dev/null
 
@@ -190,19 +191,21 @@ phpunit_run() {
 }
 
 console_run() {
-    declare -r console="${SF_CONSOLE:-bin/console}"
-
-    if [[ ! -f "${console}" ]]; then
-        echo "Console not found: ${console}" >&2
+    if [[ ! -f "${app_console}" ]]; then
+        echo "Console not found: ${app_console}" >&2
         return 1
     fi
 
-    if runner_is 'symfony' && [[ -z "${SF_CONSOLE}" ]]; then
+    if runner_is 'symfony' && [[ "${app_console}" == 'bin/console' ]]; then
         symfony console "$@"
         return $?
     fi
 
-    runner_run php "${console}" "$@"
+    runner_run php "${app_console}" "$@"
+}
+
+console_detect() {
+    echo "${SF_CONSOLE:-bin/console}"
 }
 
 phive_run() {
@@ -291,7 +294,8 @@ open_mails() {
 }
 
 show_status() {
-    echo "Runner: ${app_runner}\n"
+    echo "Runner: ${app_runner}"
+    echo "Console: ${app_console}\n"
 
     if runner_is 'local'; then
         echo "PHP binary: $(which php)\n"
