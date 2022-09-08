@@ -1,0 +1,50 @@
+#!/usr/bin/env zsh
+
+declare -r app_name="${0##*/}"
+
+if (( $+commands[symfony] )); then
+    exec symfony new "$@"
+fi
+
+local help version webapp docker
+
+zmodload zsh/zutil
+zparseopts -D -F -K -- \
+    {h,-help}=help \
+    -no-ansi=noansi \
+    -webapp=webapp \
+    -docker=docker \
+    -version:=version \
+    || return 1
+
+if [[ -n "${help}" ]]; then
+    cat <<HELP
+Create a new Symfony project
+
+Usage:
+
+  ${app_name} [options] [--] [<directory>]
+
+Arguments:
+  directory  Directory of the project to create
+
+Options:
+  --version=value  The version of the Symfony skeleton
+  --webapp         Add the webapp pack to get a fully configured web project
+  --docker         Enable Docker support (SYMFONY_DOCKER=1)
+  -h, --help       Show this help
+HELP
+    return 0
+fi
+
+if [[ -z "${1}" ]]; then
+    echo 'A directory must be passed as an argument or via the --dir option' >&2
+    return 1
+fi
+
+if [[ -n "${docker}" ]]; then
+    export SYMFONY_DOCKER=1
+fi
+
+composer create-project "symfony/skeleton${version[1]:+:}${version[2]/=}" "${1}" \
+    && [[ -n "${webapp}" ]] && composer --working-dir="${1:-skeleton}" require webapp

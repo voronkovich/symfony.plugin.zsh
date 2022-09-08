@@ -9,7 +9,6 @@ _sf() {
     case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=(
-                $'new[Create a new Symfony project]'
                 $'serve[Run a local web server]'
                 $'open[Open the local project in a browser]'
                 $'run[Run a program with environment depending on the current context]'

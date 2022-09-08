@@ -30,7 +30,6 @@ source path/to/cloned/repo/symfony.plugin.zsh
 This plugin provides some usefull commands and shortcuts:
 
 - `sf` is used for running Symfony console commands e.g `sf debug:router`, `sf c:c` and etc.;
-- `sf new` creates new Symfony project. It's just a shortcut for `symfony new`;
 - `sf serve` runs a web server. Depending on configuration it's just a shortcut for `symfony serve`, `ddev start` or `php -S`;
 - `sf run` runs a program with environment depending on the current context (current machine, `symfony run`, `ddev`, `docker` and etc.);
 - `sf php` runs a PHP (version depends on project's configuration);
@@ -40,6 +39,7 @@ This plugin provides some usefull commands and shortcuts:
 - `sf psql` runs a [psql](https://www.postgresql.org/docs/current/app-psql.html) PostgreSQL client;
 - `sf open` opens a local project in a browser;
 - `sf mails` open a local project mail catcher web interface in a browser;
+- `sfnew` creates new Symfony project. It's just a shortcut for `symfony new`;
 - `sfservice` shows a service definition. It has an autocompletion for services ids;
 - `sfroute` shows a route definition. It has autocompletion for routes names;
 - `sfconfig` shows a container extensions configuration. It has autocompletion for extensions names;
