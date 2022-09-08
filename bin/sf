@@ -239,22 +239,6 @@ show_status() {
     exec php -v
 }
 
-try_runner() {
-    [[ -n "${app_runner}" ]] && exec runner_run "$@"
-}
-
-try_ddev() {
-    is_ddev && exec ddev "$@"
-}
-
-try_symfony_cli() {
-    is_symfony_cli_enabled && (( $+commands[symfony] )) && exec symfony "$@"
-}
-
-runner_run() {
-    "${(@s: :)app_runner}" "$@"
-}
-
 find_phive() {
     local phive="./phive.phar"
     if [[ -f "${phive}" ]]; then
@@ -276,6 +260,14 @@ find_phive() {
     fi
 
     return 1
+}
+
+try_symfony_cli() {
+    is_symfony_cli_enabled && (( $+commands[symfony] )) && exec symfony "$@"
+}
+
+is_symfony_cli_enabled() {
+    is_feature_enabled "${SF_SYMFONY_CLI:-enabled}"
 }
 
 symfony_cli_required() {
@@ -301,20 +293,24 @@ symfony_cli_instructions() {
     fi
 }
 
-is_symfony_cli_enabled() {
-    is_feature_enabled "${SF_SYMFONY_CLI:-enabled}"
+try_ddev() {
+    is_ddev && exec ddev "$@"
+}
+
+is_ddev() {
+    [[ "${app_runner}" == ddev* ]]
 }
 
 is_ddev_autodetect_enabled() {
     is_feature_enabled "${SF_DDEV_AUTODETECT:-disabled}"
 }
 
-is_feature_enabled() {
-    [[ ! "${1}" =~ '^(0|no|off|disabled)$' ]]
+try_runner() {
+    [[ -n "${app_runner}" ]] && exec runner_run "$@"
 }
 
-is_ddev() {
-    [[ "${app_runner}" == ddev* ]]
+runner_run() {
+    "${(@s: :)app_runner}" "$@"
 }
 
 detect_runner() {
@@ -331,15 +327,19 @@ detect_runner() {
     echo "${SF_RUNNER}"
 }
 
-unquote() {
-    command sed -Ee "s/^\"|'//" -e "s/\"|'$//"
-}
-
 not_supported_by_runner() {
     if [[ -n "${app_runner}" ]]; then
         echo "Not supported by current runner: ${app_runner}" >&2
         exit 1
     fi
+}
+
+is_feature_enabled() {
+    [[ ! "${1}" =~ '^(0|no|off|disabled)$' ]]
+}
+
+unquote() {
+    command sed -Ee "s/^\"|'//" -e "s/\"|'$//"
 }
 
 main "$@"
