@@ -302,11 +302,15 @@ symfony_cli_instructions() {
 }
 
 is_symfony_cli_enabled() {
-    [[ "${SF_SYMFONY_CLI:-enabled}" != 'disabled' ]]
+    is_feature_enabled "${SF_SYMFONY_CLI:-enabled}"
 }
 
 is_ddev_autodetect_enabled() {
-    [[ "${SF_DDEV_AUTODETECT:-disabled}" != 'disabled' ]]
+    is_feature_enabled "${SF_DDEV_AUTODETECT:-disabled}"
+}
+
+is_feature_enabled() {
+    [[ ! "${1}" =~ '^(0|no|off|disabled)$' ]]
 }
 
 is_ddev() {
