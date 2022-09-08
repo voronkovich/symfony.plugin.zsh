@@ -180,14 +180,27 @@ composer_run() {
 }
 
 phpunit_run() {
-    if [[ ! -f bin/phpunit ]]; then
-        echo 'PHPUnit not found: bin/phpunit' >&2
+    declare -r phpunit="$(phpunit_find)"
+
+    if [[ -z "${phpunit}" ]]; then
+        echo 'PHPUnit not found.' >&2
         echo '\nInstallation:\n'
         echo "  ${app_name} composer require --dev phpunit/phpunit"
         return 1
     fi
 
-    php_run bin/phpunit "$@"
+    php_run "${phpunit}" "$@"
+}
+
+phpunit_find() {
+    for path in 'tools' 'bin' 'vendor/bin'; do
+        if [[ -f "${path}/phpunit" ]]; then
+            echo "${path}/phpunit"
+            return
+        fi
+    done
+
+    return 1
 }
 
 console_run() {
