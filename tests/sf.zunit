@@ -87,46 +87,35 @@
     assert $output same_as 'docker: compose exec php php bin/console debug:container'
 }
 
-@test 'sf: detects DDEV "runner" automatically' {
+@test 'sf: detects DDEV automatically' {
     cd "${FIXTURES_PATH}/app-ddev"
 
     export SF_SYMFONY_CLI=off
+    export SF_DDEV=on
 
-    export SF_DDEV_AUTODETECT=on
     run sf debug:container --show-envs
 
     assert $state equals 0
     assert $output contains 'ddev: exec -- php bin/console debug:container --show-envs'
 }
 
-@test 'sf: Allows to disable DDEV autodetection via SF_DDEV_AUTODETECT=off' {
+@test 'sf: Allows to disable DDEV autodetection via SF_DDEV=off' {
     cd "${FIXTURES_PATH}/app-ddev"
 
-    export SF_DDEV_AUTODETECT=off
+    export SF_SYMFONY_CLI=off
+    export SF_DDEV=off
+
     run sf debug:container --show-envs
 
     assert $state equals 0
-    assert $output contains 'symfony: console debug:container --show-envs'
-}
-
-@test 'sf: Allows to disable DDEV via SF_DDEV=off' {
-    cd "${FIXTURES_PATH}/app-ddev"
-
-    export SF_DDEV=off
-    export SF_RUNNER='ddev exec --'
-
-    run sf open
-
-    assert $state equals 1
-    assert $output contains 'Not supported by current runner: ddev exec --'
+    assert $output contains 'php: bin/console debug:container --show-envs'
 }
 
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
     unset SF_RUNNER
-    unset SF_DDEV
-    unset SF_DDEV_AUTODETECT
     unset SF_SYMFONY_CLI
+    unset SF_DDEV
     unset SF_CONSOLE
 }

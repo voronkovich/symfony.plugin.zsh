@@ -9,55 +9,48 @@ main() (
 
     case "${cmd}" in
         new)
-            exec app_new "$@"
+            app_new "$@"
+            exit $?
             ;;
         serve)
-            exec app_serve "$@"
+            app_serve "$@"
+            exit $?
             ;;
         run)
             run "$@"
+            exit $?
             ;;
         php)
             php_run "$@"
+            exit $?
             ;;
         composer)
             composer_run "$@"
+            exit $?
             ;;
         phpunit)
             phpunit_run "$@"
+            exit $?
             ;;
         phive)
             phive_run "$@"
+            exit $?
             ;;
         psql)
-            ddev_try psql "$@"
-
-            runner_not_supported
-
-            symfony_cli_required
-
-            exec symfony run psql "$@"
+            psql_run "$@"
+            exit $?
             ;;
         open)
-            ddev_try launch "$@" 2>/dev/null
-
-            runner_not_supported
-
-            symfony_cli_try open:local "$@"
-
-            exec open 'http://127.0.0.1:8000' 2>/dev/null
+            open_browser "$@"
+            exit $?
             ;;
         mails)
-            ddev_try launch -m "$@" 2>/dev/null
-
-            runner_not_supported
-
-            symfony_cli_required
-
-            exec symfony open:local:webmail "$@"
+            open_mails "$@"
+            exit $?
             ;;
         status)
             show_status "$@"
+            exit $?
             ;;
     esac
 
@@ -65,7 +58,10 @@ main() (
 )
 
 app_new() (
-    symfony_cli_try new "$@"
+    if runner_is 'symfony'; then
+        command symfony new "$@"
+        return $?
+    fi
 
     local help version webapp docker
 
@@ -112,11 +108,15 @@ HELP
 )
 
 app_serve() (
-    ddev_try start
+    if runner_is 'ddev'; then
+        command ddev start "$@"
+        return $?
+    fi
 
-    runner_not_supported
-
-    symfony_cli_try serve "$@"
+    if runner_is 'symfony'; then
+        command symfony serve "$@"
+        return $?
+    fi
 
     local help port=('--port' '8000') root=('--document-root' 'public')
 
@@ -149,35 +149,58 @@ HELP
 )
 
 run() {
-    runner_try "$@"
+    if runner_detected; then
+        if runner_is 'symfony'; then
+            command symfony run "$@"
+            return $?
+        fi
 
-    symfony_cli_try run "$@"
+        runner_run "$@"
+        return $?
+    fi
 
-    exec "$@"
+    command "$@"
 }
 
 php_run() {
-    runner_try php "$@"
+    if runner_detected; then
+        if runner_is 'ddev'; then
+            command ddev php "$@"
+            return $?
+        fi
 
-    symfony_cli_try php "$@"
+        runner_run php "$@"
+        return $?
+    fi
 
-    exec php "$@"
+    command php "$@"
 }
 
 composer_run() {
-    runner_try composer "$@"
+    if runner_detected; then
+        if runner_is 'symfony'; then
+            command symfony composer "$@"
+            return $?
+        fi
 
-    symfony_cli_try composer "$@"
+        if runner_is 'ddev'; then
+            command ddev composer "$@"
+            return $?
+        fi
 
-    exec composer "$@"
+        runner_run composer "$@"
+        return $?
+    fi
+
+    command composer "$@"
 }
 
 phpunit_run() {
     if [[ ! -f bin/phpunit ]]; then
         echo 'PHPUnit not found: bin/phpunit' >&2
         echo '\nInstallation:\n'
-        echo "  ${app_name} composer require --dev phpunit"
-        exit 1
+        echo "  ${app_name} composer require --dev phpunit/phpunit"
+        return 1
     fi
 
     php_run bin/phpunit "$@"
@@ -186,24 +209,29 @@ phpunit_run() {
 console_run() {
     declare -r console="${SF_CONSOLE:-bin/console}"
 
-    if [[ ! -f ${console} ]]; then
+    if [[ ! -f "${console}" ]]; then
         echo "Console not found: ${console}" >&2
-        exit 1
+        return 1
     fi
 
-    runner_try php "${console}" "$@"
+    if runner_detected; then
+        if runner_is 'symfony' && [[ -z "${SF_CONSOLE}" ]]; then
+            command symfony console "$@"
+            return $?
+        fi
 
-    if [[ -z "${SF_CONSOLE}" ]]; then
-        symfony_cli_try console "$@"
-    else
-        symfony_cli_try php "${console}" "$@"
+        runner_run php "${console}" "$@"
+        return $?
     fi
 
-    exec php "${console}" "$@"
+    command php "${console}" "$@"
 }
 
 phive_run() {
-    ddev_try exec -- phive "$@"
+    if runner_is 'ddev'; then
+       command ddev exec -- phive "$@"
+       return $?
+    fi
 
     local phive="$(phive_find)"
 
@@ -213,7 +241,7 @@ phive_run() {
             echo '\nHomebrew:\n'
             echo '  brew install phive'
         fi
-        exit 1
+        return 1
     fi
 
     php_run "${phive}" "$@"
@@ -242,71 +270,79 @@ phive_find() {
     return 1
 }
 
-show_status() {
-    ddev_try status "$@"
-
-    if [[ -n "${app_runner}" ]]; then
-        echo "Runner: ${app_runner}\n"
-        exec runner_run php -v
+psql_run() {
+    if runner_is 'ddev'; then
+        command ddev psql "$@"
+        return $?
     fi
 
-    if (( $+commands[symfony] )); then
-        echo "Symfony binary: $(which symfony)\n"
-        symfony php -v
-        echo
-        symfony server:status "$@"
-        exit
+    if runner_is 'symfony'; then
+        command symfony run psql "$@"
+        return $?
+    fi
+
+    runner_not_supported
+}
+
+open_browser() {
+    if runner_is 'ddev'; then
+        command ddev launch "$@" 2>/dev/null
+        return $?
+    fi
+
+    if runner_is 'symfony'; then
+        command symfony open:local "$@"
+        return $?
+    fi
+
+    command open 'http://127.0.0.1:8000' 2>/dev/null
+}
+
+open_mails() {
+    if runner_is 'ddev'; then
+        command ddev launch -m "$@" 2>/dev/null
+        return $?
+    fi
+
+    if runner_is 'symfony'; then
+        command symfony open:local:webmail "$@"
+        return $?
+    fi
+
+    runner_not_supported
+}
+
+show_status() {
+    if runner_is 'ddev'; then
+        command ddev status "$@"
+        return $?
+    fi
+
+    if runner_detected; then
+        echo "Runner: ${app_runner}\n"
+
+        if runner_is 'symfony'; then
+            echo "Symfony binary: $(which symfony)\n"
+            command symfony php -v
+            echo
+            command symfony server:status "$@"
+            return $?
+        fi
+
+        php_run -v
+        return $?
     fi
 
     echo "PHP binary: $(which php)\n"
-    exec php -v
-}
-
-symfony_cli_try() {
-    symfony_cli_enabled && (( $+commands[symfony] )) && exec symfony "$@"
+    command php -v
 }
 
 symfony_cli_enabled() {
     feature_enabled "${SF_SYMFONY_CLI:-on}"
 }
 
-symfony_cli_required() {
-    (( $+commands[symfony] )) || return
-
-    symfony_cli_instructions
-
-    exit 1
-}
-
-symfony_cli_instructions() {
-    echo 'Symfony CLI required: https://symfony.com/download' >&2
-
-    if (( $+commands[brew] )); then
-        echo '\nHomebrew:\n'
-        echo '  brew install symfony-cli/tap/symfony-cli'
-    fi
-
-    if (( $+commands[apt] )); then
-        echo '\nAPT:\n'
-        echo "  curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash"
-        echo '  sudo apt install symfony-cli'
-    fi
-}
-
-ddev_try() {
-    ddev_enabled && ddev_is_runner && exec ddev "$@"
-}
-
-ddev_is_runner() {
-    [[ "${app_runner}" == ddev* ]]
-}
-
 ddev_enabled() {
     feature_enabled "${SF_DDEV:-on}"
-}
-
-ddev_autodetect_enabled() {
-    feature_enabled "${SF_DDEV_AUTODETECT:-on}"
 }
 
 runner_try() {
@@ -318,17 +354,43 @@ runner_run() {
 }
 
 runner_detect() {
+    local runner="${SF_RUNNER}"
+
+    if [[ -n "${runner}" ]]; then
+        echo ${runner}
+        return
+    fi
+
     if [[ -f "${PWD}/.env.local" ]]; then
-        local runner="$(sed -nEe 's/^SF_RUNNER=(.*)$/\1/p' <"${PWD}/.env.local" | unquote)"
+        runner="$(sed -nEe 's/^SF_RUNNER=(.*)$/\1/p' <"${PWD}/.env.local" | unquote)"
 
-        echo ${runner} && return
+        if [[ -n "${runner}" ]]; then
+            echo ${runner}
+            return
+        fi
     fi
 
-    if ddev_enabled && ddev_autodetect_enabled; then
-        [[ -d "${PWD}/.ddev" ]] && echo 'ddev exec --' && return
+    if ddev_enabled && [[ -d "${PWD}/.ddev" ]]; then
+        echo 'ddev exec --'
+        return
     fi
 
-    echo "${SF_RUNNER}"
+    if symfony_cli_enabled && (( $+commands[symfony] )) then
+        echo 'symfony'
+        return
+    fi
+}
+
+runner_detected() {
+    [[ -n "${app_runner}" ]]
+}
+
+runner_is() {
+    [[ "$1" == "$(runner_name)" ]]
+}
+
+runner_name() {
+    echo "${app_runner%% *}"
 }
 
 runner_not_supported() {
