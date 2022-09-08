@@ -57,9 +57,9 @@ main() (
     console_run "${cmd}" "$@"
 )
 
-app_new() (
+app_new() {
     if runner_is 'symfony'; then
-        command symfony new "$@"
+        symfony new "$@"
         return $?
     fi
 
@@ -105,17 +105,15 @@ HELP
 
     composer create-project "symfony/skeleton${version[1]:+:}${version[2]/=}" "${1}" \
         && [[ -n "${webapp}" ]] && composer --working-dir="${1:-skeleton}" require webapp
-)
+}
 
-app_serve() (
+app_serve() {
     if runner_is 'ddev'; then
-        command ddev start "$@"
-        return $?
+        exec ddev start "$@"
     fi
 
     if runner_is 'symfony'; then
-        command symfony serve "$@"
-        return $?
+        exec symfony serve "$@"
     fi
 
     local help port=('--port' '8000') root=('--document-root' 'public')
@@ -146,53 +144,38 @@ HELP
     fi
 
     exec php -S "127.0.0.1:${port[2]/=}" -t "${root[2]/=}"
-)
+}
 
 run() {
-    if runner_detected; then
-        if runner_is 'symfony'; then
-            command symfony run "$@"
-            return $?
-        fi
-
-        runner_run "$@"
+    if runner_is 'symfony'; then
+        symfony run "$@"
         return $?
     fi
 
-    command "$@"
+    runner_run "$@"
 }
 
 php_run() {
-    if runner_detected; then
-        if runner_is 'ddev'; then
-            command ddev php "$@"
-            return $?
-        fi
-
-        runner_run php "$@"
+    if runner_is 'ddev'; then
+        ddev php "$@"
         return $?
     fi
 
-    command php "$@"
+    runner_run php "$@"
 }
 
 composer_run() {
-    if runner_detected; then
-        if runner_is 'symfony'; then
-            command symfony composer "$@"
-            return $?
-        fi
-
-        if runner_is 'ddev'; then
-            command ddev composer "$@"
-            return $?
-        fi
-
-        runner_run composer "$@"
+    if runner_is 'symfony'; then
+        symfony composer "$@"
         return $?
     fi
 
-    command composer "$@"
+    if runner_is 'ddev'; then
+        ddev composer "$@"
+        return $?
+    fi
+
+    runner_run composer "$@"
 }
 
 phpunit_run() {
@@ -214,22 +197,17 @@ console_run() {
         return 1
     fi
 
-    if runner_detected; then
-        if runner_is 'symfony' && [[ -z "${SF_CONSOLE}" ]]; then
-            command symfony console "$@"
-            return $?
-        fi
-
-        runner_run php "${console}" "$@"
+    if runner_is 'symfony' && [[ -z "${SF_CONSOLE}" ]]; then
+        symfony console "$@"
         return $?
     fi
 
-    command php "${console}" "$@"
+    runner_run php "${console}" "$@"
 }
 
 phive_run() {
     if runner_is 'ddev'; then
-       command ddev exec -- phive "$@"
+       ddev exec -- phive "$@"
        return $?
     fi
 
@@ -272,12 +250,12 @@ phive_find() {
 
 psql_run() {
     if runner_is 'ddev'; then
-        command ddev psql "$@"
+        ddev psql "$@"
         return $?
     fi
 
     if runner_is 'symfony'; then
-        command symfony run psql "$@"
+        symfony run psql "$@"
         return $?
     fi
 
@@ -286,26 +264,26 @@ psql_run() {
 
 open_browser() {
     if runner_is 'ddev'; then
-        command ddev launch "$@" 2>/dev/null
+        ddev launch "$@" 2>/dev/null
         return $?
     fi
 
     if runner_is 'symfony'; then
-        command symfony open:local "$@"
+        symfony open:local "$@"
         return $?
     fi
 
-    command open 'http://127.0.0.1:8000' 2>/dev/null
+    open 'http://127.0.0.1:8000' 2>/dev/null
 }
 
 open_mails() {
     if runner_is 'ddev'; then
-        command ddev launch -m "$@" 2>/dev/null
+        ddev launch -m "$@" 2>/dev/null
         return $?
     fi
 
     if runner_is 'symfony'; then
-        command symfony open:local:webmail "$@"
+        symfony open:local:webmail "$@"
         return $?
     fi
 
@@ -313,28 +291,24 @@ open_mails() {
 }
 
 show_status() {
+    echo "Runner: ${app_runner}\n"
+
+    if runner_is 'local'; then
+        echo "PHP binary: $(which php)\n"
+    fi
+
+    php_run --version && echo
+
     if runner_is 'ddev'; then
-        command ddev status "$@"
+        ddev status "$@"
         return $?
     fi
 
-    if runner_detected; then
-        echo "Runner: ${app_runner}\n"
-
-        if runner_is 'symfony'; then
-            echo "Symfony binary: $(which symfony)\n"
-            command symfony php -v
-            echo
-            command symfony server:status "$@"
-            return $?
-        fi
-
-        php_run -v
+    if runner_is 'symfony'; then
+        echo "Symfony binary: $(which symfony)\n"
+        symfony server:status "$@"
         return $?
     fi
-
-    echo "PHP binary: $(which php)\n"
-    command php -v
 }
 
 symfony_cli_enabled() {
@@ -345,19 +319,15 @@ ddev_enabled() {
     feature_enabled "${SF_DDEV:-on}"
 }
 
-runner_try() {
-    [[ -n "${app_runner}" ]] && exec runner_run "$@"
-}
-
 runner_run() {
-    "${(@s: :)app_runner}" "$@"
+    runner_is 'local' && "$@" || "${(@s: :)app_runner}" "$@"
 }
 
 runner_detect() {
     local runner="${SF_RUNNER}"
 
     if [[ -n "${runner}" ]]; then
-        echo ${runner}
+        echo "${runner}"
         return
     fi
 
@@ -365,7 +335,7 @@ runner_detect() {
         runner="$(sed -nEe 's/^SF_RUNNER=(.*)$/\1/p' <"${PWD}/.env.local" | unquote)"
 
         if [[ -n "${runner}" ]]; then
-            echo ${runner}
+            echo "${runner}"
             return
         fi
     fi
@@ -379,10 +349,8 @@ runner_detect() {
         echo 'symfony'
         return
     fi
-}
 
-runner_detected() {
-    [[ -n "${app_runner}" ]]
+    echo 'local'
 }
 
 runner_is() {
@@ -405,7 +373,7 @@ feature_enabled() {
 }
 
 unquote() {
-    command sed -Ee "s/^\"|'//" -e "s/\"|'$//"
+    sed -Ee "s/^\"|'//" -e "s/\"|'$//"
 }
 
 main "$@"
