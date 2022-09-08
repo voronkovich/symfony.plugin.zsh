@@ -267,11 +267,11 @@ try_symfony_cli() {
 }
 
 is_symfony_cli_enabled() {
-    is_feature_enabled "${SF_SYMFONY_CLI:-enabled}"
+    is_feature_enabled "${SF_SYMFONY_CLI:-on}"
 }
 
 symfony_cli_required() {
-    (( $+commands[symfony])) || return
+    (( $+commands[symfony] )) || return
 
     symfony_cli_instructions
 
@@ -302,7 +302,7 @@ is_ddev() {
 }
 
 is_ddev_autodetect_enabled() {
-    is_feature_enabled "${SF_DDEV_AUTODETECT:-enabled}"
+    is_feature_enabled "${SF_DDEV_AUTODETECT:-on}"
 }
 
 try_runner() {

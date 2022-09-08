@@ -16,16 +16,16 @@
     assert $output same_as 'symfony: console about'
 }
 
-@test 'sf: allows to disable Symfony CLI via SF_SYMFONY_CLI env' {
+@test 'sf: allows to disable Symfony CLI via SF_SYMFONY_CLI=off' {
     cd "${FIXTURES_PATH}/app"
 
-    export SF_SYMFONY_CLI=enabled
+    export SF_SYMFONY_CLI=on
     run sf list --no-ansi
 
     assert $state equals 0
     assert $output contains 'symfony: console list --no-ansi'
 
-    export SF_SYMFONY_CLI=disabled
+    export SF_SYMFONY_CLI=off
     run sf list --no-ansi
 
     assert $state equals 0
@@ -34,9 +34,9 @@
 }
 
 @test 'sf: runs default console command if no arguments provided' {
-    export SF_SYMFONY_CLI=disabled
-
     cd "${FIXTURES_PATH}/app"
+
+    export SF_SYMFONY_CLI=off
 
     run sf
 
@@ -45,9 +45,9 @@
 }
 
 @test 'sf: runs specified console command' {
-    export SF_SYMFONY_CLI=disabled
-
     cd "${FIXTURES_PATH}/app"
+
+    export SF_SYMFONY_CLI=off
 
     run sf about
 
@@ -56,10 +56,10 @@
 }
 
 @test 'sf: allows to set console binary via SF_CONSOLE env' {
-    export SF_SYMFONY_CLI=disabled
-    export SF_CONSOLE=artisan
-
     cd "${FIXTURES_PATH}/app-laravel"
+
+    export SF_SYMFONY_CLI=off
+    export SF_CONSOLE=artisan
 
     run sf about
 
@@ -90,19 +90,19 @@
 @test 'sf: detects DDEV "runner" automatically' {
     cd "${FIXTURES_PATH}/app-ddev"
 
-    export SF_SYMFONY_CLI=disabled
+    export SF_SYMFONY_CLI=off
 
-    export SF_DDEV_AUTODETECT=enabled
+    export SF_DDEV_AUTODETECT=on
     run sf debug:container --show-envs
 
     assert $state equals 0
     assert $output contains 'ddev: exec -- php bin/console debug:container --show-envs'
 }
 
-@test 'sf: Allows to disable DDEV autodetection via SF_DDEV_AUTODETECT env' {
+@test 'sf: Allows to disable DDEV autodetection via SF_DDEV_AUTODETECT=off' {
     cd "${FIXTURES_PATH}/app-ddev"
 
-    export SF_DDEV_AUTODETECT=disabled
+    export SF_DDEV_AUTODETECT=off
     run sf debug:container --show-envs
 
     assert $state equals 0
