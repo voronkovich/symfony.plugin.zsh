@@ -20,12 +20,14 @@ _sf() {
                 $'status[Get the local web server status]'
                 $'mails[Open the local project mail catcher web interface in a browser]'
                 $'psql[Run psql]'
-                $(sf list --no-ansi 2>/dev/null | __symfony_complete_commands)
+                $("${words[1]}" --no-ansi 2>/dev/null | __symfony_complete_commands)
             )
             _values '' ${cmds_list} && ret=0
             ;;
         args)
-            IFS=$'\n' local opts_list=($(sf "${line[1]}" --help --no-ansi 2>/dev/null | __symfony_complete_options))
+            IFS=$'\n' local opts_list=(
+                $("${words[1]}"  "${line[1]}" --help --no-ansi 2>/dev/null | __symfony_complete_options)
+            )
             _arguments '*: :_files' ${opts_list} && ret=0
             ;;
     esac
