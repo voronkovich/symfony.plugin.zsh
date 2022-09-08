@@ -327,12 +327,31 @@ ddev_enabled() {
     feature_enabled "${SF_DDEV:-on}"
 }
 
+docker_enabled() {
+    feature_enabled "${SF_DOCKER:-on}"
+}
+
+docker_find_compose_file() {
+    declare -r files=(
+        "${PWD}/docker-compose.yml"
+        "${PWD}/docker-compose.yaml"
+    )
+
+    find_first_existing_file "${files[@]}"
+}
+
+docker_compose_command() {
+    (( $+commands[docker-compose] )) \
+        && echo 'docker-compose' \
+        || echo 'docker compose'
+}
+
 runner_run() {
     runner_is 'local' && "$@" || "${(@s: :)app_runner}" "$@"
 }
 
 runner_detect() {
-    local runner="${SF_RUNNER}"
+    declare runner="${SF_RUNNER}"
 
     if [[ -n "${runner}" ]]; then
         echo "${runner}"
@@ -351,6 +370,21 @@ runner_detect() {
     if ddev_enabled && [[ -d "${PWD}/.ddev" ]]; then
         echo 'ddev exec --'
         return
+    fi
+
+    if docker_enabled; then
+        declare -r compose_file="$(docker_find_compose_file)"
+
+        if [[ -f "${compose_file}" ]]; then
+            declare -ra services=(
+                $(sed -nE -e 's/^[[:space:]]+(php|app+):.*$/\1/p' <"${compose_file}" 2>/dev/null)
+            )
+
+            if [[ -n "${services[1]}" ]]; then
+                echo "$(docker_compose_command) exec -- ${services[1]}"
+                return
+            fi
+        fi
     fi
 
     if symfony_cli_enabled && (( $+commands[symfony] )) then
@@ -378,6 +412,16 @@ runner_not_supported() {
 
 feature_enabled() {
     [[ ! "${1}" =~ '^(0|no|off|false|disabled?)$' ]]
+}
+
+find_first_existing_file() {
+    for file in "$@"; do
+        if [[ -f "$file" ]]; then
+            echo "${file}" && return
+        fi
+    done
+
+    return 1
 }
 
 unquote() {

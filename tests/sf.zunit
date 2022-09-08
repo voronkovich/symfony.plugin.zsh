@@ -128,6 +128,27 @@
     assert $output contains 'php: bin/console debug:container --show-envs'
 }
 
+@test 'sf: detects Docker automatically' {
+    cd "${FIXTURES_PATH}/app-docker"
+
+    run sf debug:container --show-envs
+
+    assert $state equals 0
+    assert $output contains 'docker-compose: exec -- php php bin/console debug:container --show-envs'
+}
+
+@test 'sf: Allows to disable Docker autodetection via SF_DOCKER=off' {
+    cd "${FIXTURES_PATH}/app-docker"
+
+    export SF_SYMFONY_CLI=off
+    export SF_DOCKER=off
+
+    run sf debug:container --show-envs
+
+    assert $state equals 0
+    assert $output contains 'php: bin/console debug:container --show-envs'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
