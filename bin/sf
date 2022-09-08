@@ -191,18 +191,14 @@ phpunit_run() {
 }
 
 phpunit_find() {
-    for path in 'bin' 'vendor/bin'; do
-        if [[ -f "${path}/phpunit" ]]; then
-            echo "${path}/phpunit"
-            return
-        fi
-    done
-
-    return 1
+    find_first_existing_file \
+        'bin/phpunit' \
+        'vendor/bin/phpunit' \
+    ;
 }
 
 phive_run() {
-    local phive="$(phive_find)"
+    declare -r phive="$(phive_find)"
 
     if [[ -z "${phive}" ]]; then
         run phive "$@"
@@ -213,24 +209,26 @@ phive_run() {
 }
 
 phive_find() {
-    for path in 'bin' '.'; do
-        if [[ -f "${path}/phive" ]]; then
-            echo "${path}/phive"
-            return
-        fi
-        if [[ -f "${path}/phive.phar" ]]; then
-            echo "${path}/phive.phar"
-            return
-        fi
-    done
 
-    if ! runner_is 'local' || runner_is 'symfony'; then
-        return 1
+    declare phive="$(find_first_existing_file \
+        'bin/phive' \
+        'bin/phive.phar' \
+        'phive' \
+        'phive.phar' \
+    )"
+
+    if [[ -n "${phive}" ]]; then
+        echo "${phive}"
+        return
     fi
 
-    phive="$(which phive 2>/dev/null)"
-    if [[ $? -eq 0 && -f "${phive}" ]]; then
-        echo "${phive}" && return
+    if runner_is 'symfony'; then
+        phive="$(which phive 2>/dev/null)"
+
+        if [[ $? -eq 0 && -f "${phive}" ]]; then
+            echo "${phive}"
+            return
+        fi
     fi
 
     return 1
@@ -332,12 +330,10 @@ docker_enabled() {
 }
 
 docker_find_compose_file() {
-    declare -r files=(
-        "${PWD}/docker-compose.yml"
-        "${PWD}/docker-compose.yaml"
-    )
-
-    find_first_existing_file "${files[@]}"
+    find_first_existing_file \
+        "${PWD}/docker-compose.yml" \
+        "${PWD}/docker-compose.yaml" \
+    ;
 }
 
 docker_compose_command() {
