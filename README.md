@@ -29,16 +29,16 @@ source path/to/cloned/repo/symfony.plugin.zsh
 
 This plugin provides some usefull commands and shortcuts:
 
-- `sf` is used for running Symfony console commands e.g `sf debug:router`, `sf c:c` and etc.;
-- `sf serve` runs a web server. Depending on configuration it's just a shortcut for `symfony serve`, `ddev start` or `php -S`;
-- `sf run` runs a program with environment depending on the current context (current machine, `symfony run`, `ddev`, `docker` and etc.);
-- `sf php` runs a PHP (version depends on project's configuration);
-- `sf composer` runs a [Composer](https://getcomposer.org/);
-- `sf phpunit` runs a [PHPUnit](https://phpunit.de/);
-- `sf phive` runs a [PHIVE](https://phar.io/);
-- `sf psql` runs a [psql](https://www.postgresql.org/docs/current/app-psql.html) PostgreSQL client;
-- `sf open` opens a local project in a browser;
-- `sf mails` open a local project mail catcher web interface in a browser;
+- `sf` is used for running Symfony console commands e.g. `sf debug:router`, `sf c:c` and etc. But it also has some special subcommands:
+  - `serve` runs a development web server. Depending on configuration it will use `docker compose up`,  `symfony serve`, `ddev start` or `php -S`;
+  - `run` runs a program with environment depending on the current context (current machine, `symfony run`, `ddev`, `docker` and etc.);
+  - `php` runs a PHP (version depends on project's configuration);
+  - `composer` runs a [Composer](https://getcomposer.org/);
+  - `phpunit` runs a [PHPUnit](https://phpunit.de/);
+  - `phive` runs a [PHIVE](https://phar.io/);
+  - `psql` runs a [psql](https://www.postgresql.org/docs/current/app-psql.html) PostgreSQL client;
+  - `open` opens a local project in a browser;
+  - `mails` opens a local project mail catcher web interface in a browser;
 - `sfnew` creates new Symfony project. It's just a shortcut for `symfony new`;
 - `sfservice` shows a service definition. It has an autocompletion for services ids;
 - `sfroute` shows a route definition. It has autocompletion for routes names;
@@ -57,7 +57,7 @@ But, if you use a [DDEV](https://ddev.com/) or a [dunglas/symfony-docker](https:
 
 ## Configuration
 
-Command `sf` can be configured via following environment variables:
+The `sf` command can be configured via following environment variables:
 
 - `SF_RUNNER`: sets command runner
 
