@@ -157,11 +157,6 @@ run() {
 }
 
 php_run() {
-    if runner_is 'ddev'; then
-        ddev php "$@"
-        return $?
-    fi
-
     runner_run php "$@"
 }
 
