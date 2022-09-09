@@ -9,7 +9,8 @@ A zsh plugin for the [Symfony](https://symfony.com/) PHP framework.
 * Usefull commands and shortcuts;
 * Symfony's [commands](https://symfony.com/doc/current/console.html) and options autocompletion;
 * Autocompletion for [Symfony CLI](https://symfony.com/download);
-* [Docker](https://docker.com/) and [DDEV](https://ddev.com/) support.
+* [Docker](https://docker.com/) and [DDEV](https://ddev.com/) support;
+* Works with [Laravel](#laravel) or any other similar PHP framework.
 
 ## Installation
 
@@ -55,7 +56,7 @@ This plugin provides some usefull commands and shortcuts:
 
 ## Containers support (Docker/DDEV and etc.)
 
-If you run your app inside a [Docker](https://www.docker.com/) container, you'll probably need to configure a "runner": a command that executes a code. You can do it by setting a special `SF_RUNNER` environment variable. Just place it in your `.zshrc` or in a local `.env` or `.env.local` files inside of your project's root:
+If you run your app inside a [Docker](https://www.docker.com/) container, you'll probably need to configure a "runner": a command that executes another commands. You can do it by setting a special `SF_RUNNER` environment variable. Just place it in your `.zshrc` or in a local `.env` or `.env.local` files inside of your project's root:
 
 ```sh
 # "symfony" is a service name in a `docker-compose.yml`
@@ -68,16 +69,6 @@ But, if you use a [DDEV](https://ddev.com/) or a [dunglas/symfony-docker](https:
 
 The `sf` command can be configured via following environment variables:
 
-- `SF_RUNNER`: sets command runner
-
-   **Allowed values**: any valid command
-
-   **Default:** configured automatically
-
-   ```sh
-   export SF_RUNNER="vendor/bin/sail"
-   ```
-
 - `SF_CONSOLE`: sets the console binary
 
    **Allowed values**: any valid path to binary file
@@ -88,6 +79,17 @@ The `sf` command can be configured via following environment variables:
    # Yes, you can use this plugin with the Laravel too
    export SF_CONSOLE="artisan"
    ```
+
+- `SF_RUNNER`: sets command runner
+
+   **Allowed values**: any valid command
+
+   **Default:** configured automatically
+
+   ```sh
+   export SF_RUNNER="docker-compose exec -- laravel.test"
+   ```
+
 - `SF_DDEV`: enables/disables DDEV autodetection.
 
    **Allowed values:** "on", "off"
@@ -141,7 +143,7 @@ artisan() {
 compdef _sf artisan
 ```
 
-## Ascii movie
+## ASCII movie
 
 [![asciicast](https://asciinema.org/a/03shcf05p1wz0ppg2dambztig.png)](https://asciinema.org/a/03shcf05p1wz0ppg2dambztig)
 
