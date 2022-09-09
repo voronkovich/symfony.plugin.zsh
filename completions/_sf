@@ -10,6 +10,8 @@ _sf() {
         cmds)
             IFS=$'\n' local cmds_list=(
                 $'serve[Run a local web server]'
+                $'start[Run a local web server]'
+                $'stop[Stop a local web server]'
                 $'open[Open the local project in a browser]'
                 $'run[Run a program with environment depending on the current context]'
                 $'php[Run PHP (version depends on project\'s configuration)]'

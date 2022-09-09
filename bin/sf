@@ -11,8 +11,16 @@ main() (
     local cmd="${1}" && shift 2>/dev/null
 
     case "${cmd}" in
-        serve)
+        serve|start)
             app_serve "$@"
+            exit $?
+            ;;
+        stop)
+            app_stop "$@"
+            exit $?
+            ;;
+        status)
+            app_status "$@"
             exit $?
             ;;
         run)
@@ -45,10 +53,6 @@ main() (
             ;;
         mails)
             open_mails "$@"
-            exit $?
-            ;;
-        status)
-            show_status "$@"
             exit $?
             ;;
     esac
@@ -97,6 +101,50 @@ HELP
     fi
 
     exec php -S "127.0.0.1:${port[2]/=}" -t "${root[2]/=}"
+}
+
+app_stop() {
+    if runner_is 'docker' || runner_is 'docker-compose'; then
+        exec "$(docker_compose_command)" down "$@"
+    fi
+
+    if runner_is 'ddev'; then
+        exec ddev stop "$@"
+    fi
+
+    if runner_is 'symfony'; then
+        exec symfony server:stop "$@"
+    fi
+
+    runner_not_supported
+}
+
+app_status() {
+    echo "Runner: ${app_runner}"
+    echo "Console: ${app_console}\n"
+
+    if runner_is 'local'; then
+        echo "PHP binary: $(which php)\n"
+    fi
+
+    php_run --version
+
+    if runner_is 'ddev'; then
+        echo
+        ddev status "$@"
+        return $?
+    fi
+
+    if runner_is 'docker' || runner_is 'docker-compose'; then
+        echo
+        exec "$(docker_compose_command)" ps "$@"
+    fi
+
+    if runner_is 'symfony'; then
+        echo "\nSymfony binary: $(which symfony)\n"
+        symfony server:status "$@"
+        return $?
+    fi
 }
 
 run() {
@@ -161,7 +209,6 @@ phive_run() {
 }
 
 phive_find() {
-
     declare phive="$(find_first_existing_file \
         'bin/phive' \
         'bin/phive.phar' \
@@ -251,29 +298,6 @@ open_mails() {
     runner_not_supported
 }
 
-show_status() {
-    echo "Runner: ${app_runner}"
-    echo "Console: ${app_console}\n"
-
-    if runner_is 'local'; then
-        echo "PHP binary: $(which php)\n"
-    fi
-
-    php_run --version
-
-    if runner_is 'ddev'; then
-        echo
-        ddev status "$@"
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        echo "\nSymfony binary: $(which symfony)\n"
-        symfony server:status "$@"
-        return $?
-    fi
-}
-
 symfony_cli_enabled() {
     feature_enabled "${SF_SYMFONY_CLI:-on}"
 }
@@ -348,10 +372,8 @@ runner_name() {
 }
 
 runner_not_supported() {
-    if [[ -n "${app_runner}" ]]; then
-        echo "Not supported by current runner: ${app_runner}" >&2
-        exit 1
-    fi
+    echo "Not supported by current runner: ${app_runner}" >&2
+    exit 1
 }
 
 config_load_env_files() {

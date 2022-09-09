@@ -38,6 +38,8 @@ This plugin provides some usefull commands and shortcuts:
 
 * `sf` is used for running Symfony's [console commands](https://symfony.com/doc/current/console.html) e.g. `sf debug:router`, `sf c:c` and etc. But it also has some special subcommands:
   - `serve` runs a development web server. Depending on configuration it will use `docker compose up`,  `symfony serve`, `ddev start` or `php -S`;
+  - `status` shows status (web server, containers and etc.);
+  - `stop` stops a development web server;
   - `run` runs a program with environment depending on the current context (current machine, `symfony run`, `ddev`, `docker` and etc.);
   - `php` runs a PHP (version depends on project's configuration);
   - `composer` runs a [Composer](https://getcomposer.org/);
