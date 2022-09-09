@@ -2,7 +2,14 @@
 
 [![Tests](https://github.com/voronkovich/symfony.plugin.zsh/actions/workflows/tests.yaml/badge.svg)](https://github.com/voronkovich/symfony.plugin.zsh/actions/workflows/tests.yaml)
 
-A zsh plugin for the [Symfony](https://symfony.com/) console.
+A zsh plugin for the [Symfony](https://symfony.com/) PHP framework.
+
+## Features
+
+* Usefull commands and shortcuts;
+* Symfony's [commands](https://symfony.com/doc/current/console.html) and options autocompletion;
+* Autocompletion for [Symfony CLI](https://symfony.com/download);
+* [Docker](https://docker.com/) and [DDEV](https://ddev.com/) support.
 
 ## Installation
 
@@ -29,7 +36,7 @@ source path/to/cloned/repo/symfony.plugin.zsh
 
 This plugin provides some usefull commands and shortcuts:
 
-- `sf` is used for running Symfony console commands e.g. `sf debug:router`, `sf c:c` and etc. But it also has some special subcommands:
+* `sf` is used for running Symfony's [console commands](https://symfony.com/doc/current/console.html) e.g. `sf debug:router`, `sf c:c` and etc. But it also has some special subcommands:
   - `serve` runs a development web server. Depending on configuration it will use `docker compose up`,  `symfony serve`, `ddev start` or `php -S`;
   - `run` runs a program with environment depending on the current context (current machine, `symfony run`, `ddev`, `docker` and etc.);
   - `php` runs a PHP (version depends on project's configuration);
@@ -39,14 +46,14 @@ This plugin provides some usefull commands and shortcuts:
   - `psql` runs a [psql](https://www.postgresql.org/docs/current/app-psql.html) PostgreSQL client;
   - `open` opens a local project in a browser;
   - `mails` opens a local project mail catcher web interface in a browser;
-- `sfnew` creates new Symfony project. It's just a shortcut for `symfony new`;
-- `sfservice` shows a service definition. It has an autocompletion for services ids;
-- `sfroute` shows a route definition. It has autocompletion for routes names;
-- `sfconfig` shows a container extensions configuration. It has autocompletion for extensions names;
+* `sfnew` creates new Symfony project. It's just a shortcut for `symfony new`;
+* `sfservice` shows a service definition. It has an autocompletion for services ids;
+* `sfroute` shows a route definition. It has autocompletion for routes names;
+* `sfconfig` shows a container extensions configuration. It has autocompletion for extensions names;
 
 ## Containers support (Docker/DDEV and etc.)
 
-If you run your app inside a [Docker](https://www.docker.com/) container, you'll probably need to configure a "runner": a command that executes a code. You can do it by setting a special `SF_RUNNER` environment variable. Just place it in your `.zshrc` or in a local `.env.local` file inside your project's root:
+If you run your app inside a [Docker](https://www.docker.com/) container, you'll probably need to configure a "runner": a command that executes a code. You can do it by setting a special `SF_RUNNER` environment variable. Just place it in your `.zshrc` or in a local `.env` or `.env.local` files inside of your project's root:
 
 ```sh
 # "symfony" is a service name in a `docker-compose.yml`
@@ -66,7 +73,7 @@ The `sf` command can be configured via following environment variables:
    **Default:** configured automatically
 
    ```sh
-   export SF_RUNNER='vendor/bin/sail'
+   export SF_RUNNER="vendor/bin/sail"
    ```
 
 - `SF_CONSOLE`: sets the console binary
@@ -76,7 +83,8 @@ The `sf` command can be configured via following environment variables:
    **Default:** "bin/console"
 
    ```sh
-   export SF_CONSOLE='artisan'
+   # Yes, you can use this plugin with the Laravel too
+   export SF_CONSOLE="artisan"
    ```
 - `SF_DDEV`: enables/disables DDEV autodetection.
 
@@ -87,10 +95,11 @@ The `sf` command can be configured via following environment variables:
    When enabled `sf` will check project's folder for existence of `.ddev` directory and configure runner to use `ddev exec`
 
    ```sh
+   # Disable DDEV detection
    export SF_DDEV=off
    ```
 
-- `SF_SYMFONY_DOCKER` enbales/disables Docker autodetection
+- `SF_DOCKER` enbales/disables Docker autodetection
 
    **Allowed values:** "on", "off"
 
@@ -99,6 +108,7 @@ The `sf` command can be configured via following environment variables:
    When enabled `sf` will try to detect a proper runner from a `docker-compose.yml` or `docker-compose.yaml` files. If the file exists, `sf` will try to find common service names: `php` and `app` and automatically configure runner e.g. `docker compose exec php --`
 
    ```sh
+   # Disable Docker detection
    export SF_DOCKER=off
    ```
 
@@ -111,8 +121,11 @@ The `sf` command can be configured via following environment variables:
    When enabled `sf` will try to detect if [Symfony CLI](https://symfony.com/download) installed and use it as the runner instead of local `php`
 
    ```sh
+   # Disable Symfony CLI
    export SF_SYMFONY_CLI=off
    ```
+
+You can put the configuration in your global `.zshrc` file or in a local `.env` or `.env.local` files inside of your project's root.
 
 ## Ascii movie
 
