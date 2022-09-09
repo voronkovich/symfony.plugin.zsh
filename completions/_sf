@@ -6,28 +6,44 @@ _sf() {
 
     _arguments '1: :->cmds' '*: :->args' && ret=0
 
+    local cmd=("${words[1]}")
+    local subcmd="${line[1]}"
+
+    if [[ "${subcmd}" == 'composer' ]]; then
+        cmd+=("${subcmd}")
+        subcmd="${line[2]}"
+
+        _arguments '1: :->cmds' '2: :->cmds' '*: :->args' && ret=0
+    fi
+
     case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=(
-                $'serve[Run a local web server]'
-                $'start[Run a local web server]'
-                $'stop[Stop a local web server]'
-                $'open[Open the local project in a browser]'
-                $'run[Run a program with environment depending on the current context]'
-                $'php[Run PHP (version depends on project\'s configuration)]'
-                $'composer[Run Composer without memory limit]'
-                $'phpunit[Run PHPUnit using the configured PHP version]'
-                $'phive[Run PHIVE using the configured PHP version]'
-                $'status[Get the local web server status]'
-                $'mails[Open the local project mail catcher web interface in a browser]'
-                $'psql[Run psql]'
-                $("${words[1]}" --no-ansi 2>/dev/null | __symfony_complete_commands)
+                $("${cmd[@]}" --no-ansi 2>/dev/null | __symfony_complete_commands)
             )
+
+            if [[ "${#cmd[@]}" == 1 ]]; then
+                cmds_list+=(
+                    $'serve[Run a local web server]'
+                    $'start[Run a local web server]'
+                    $'stop[Stop a local web server]'
+                    $'open[Open the local project in a browser]'
+                    $'run[Run a program with environment depending on the current context]'
+                    $'php[Run PHP (version depends on project\'s configuration)]'
+                    $'composer[Run Composer without memory limit]'
+                    $'phpunit[Run PHPUnit using the configured PHP version]'
+                    $'phive[Run PHIVE using the configured PHP version]'
+                    $'status[Get the local web server status]'
+                    $'mails[Open the local project mail catcher web interface in a browser]'
+                    $'psql[Run psql]'
+                )
+            fi
+
             _values '' ${cmds_list} && ret=0
             ;;
         args)
             IFS=$'\n' local opts_list=(
-                $("${words[1]}"  "${line[1]}" --help --no-ansi 2>/dev/null | __symfony_complete_options)
+                $("${cmd[@]}" "${subcmd}" --help --no-ansi 2>/dev/null | __symfony_complete_options)
             )
             _arguments '*: :_files' ${opts_list} && ret=0
             ;;
