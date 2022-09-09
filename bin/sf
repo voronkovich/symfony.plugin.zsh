@@ -171,11 +171,6 @@ composer_run() {
         return $?
     fi
 
-    if runner_is 'ddev'; then
-        ddev composer "$@"
-        return $?
-    fi
-
     runner_run composer "$@"
 }
 
