@@ -3,6 +3,8 @@
 declare -r app_name="${0##*/}"
 
 main() (
+    config_load_env_files
+
     declare -r app_runner="$(runner_detect)"
     declare -r app_console="$(console_detect)"
 
@@ -309,15 +311,6 @@ runner_detect() {
         return
     fi
 
-    if [[ -f "${PWD}/.env.local" ]]; then
-        runner="$(sed -nEe 's/^SF_RUNNER=(.*)$/\1/p' <"${PWD}/.env.local" | unquote)"
-
-        if [[ -n "${runner}" ]]; then
-            echo "${runner}"
-            return
-        fi
-    fi
-
     if ddev_enabled && [[ -d "${PWD}/.ddev" ]]; then
         echo 'ddev exec --'
         return
@@ -359,6 +352,17 @@ runner_not_supported() {
         echo "Not supported by current runner: ${app_runner}" >&2
         exit 1
     fi
+}
+
+config_load_env_files() {
+    [[ -f "${PWD}/.env" ]] && config_process <"${PWD}/.env"
+    [[ -f "${PWD}/.env.local" ]] && config_process <"${PWD}/.env.local"
+}
+
+config_process() {
+    grep -E '^[[:space:]]*SF_\w+=' | while IFS='=' read -r key value; do
+        export "${key}"="$(unquote <<<"${value}")"
+    done
 }
 
 feature_enabled() {

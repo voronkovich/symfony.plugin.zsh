@@ -78,13 +78,13 @@
     assert $output same_as 'docker: compose exec php php bin/console debug:router'
 }
 
-@test 'sf: allows to set "runner" via .env.local file' {
-    cd "${FIXTURES_PATH}/app-env-local"
+@test 'sf: loads configuration from .env and .env.local files' {
+    cd "${FIXTURES_PATH}/app-env-file"
 
-    run sf debug:container
+    run sf test
 
     assert $state equals 0
-    assert $output same_as 'docker: compose exec php php bin/console debug:container'
+    assert $output same_as 'docker: compose exec -- laravel php artisan test'
 }
 
 @test 'sf: runs commands locally if could not detect runner' {
