@@ -129,6 +129,18 @@ The `sf` command can be configured via following environment variables:
 
 You can put the configuration in your global `.zshrc` file or in a local `.env` or `.env.local` files inside of your project's root.
 
+## Laravel
+
+BTW, you can use this plugin with the [Laravel](https://laravel.com/) :). To do this, just create a wrapper function in your `.zshrc` with configuration like this (in this example I use [Sail](https://laravel.com/docs/9.x/sail)):
+
+```zsh
+artisan() {
+    SF_CONSOLE='artisan' SF_RUNNER='docker-compose exec -- laravel.test' sf "$@"
+}
+
+compdef _sf artisan
+```
+
 ## Ascii movie
 
 [![asciicast](https://asciinema.org/a/03shcf05p1wz0ppg2dambztig.png)](https://asciinema.org/a/03shcf05p1wz0ppg2dambztig)
