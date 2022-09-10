@@ -90,28 +90,25 @@ app_status() {
     echo "Runner: ${app_runner}"
     echo "Console: ${app_console}\n"
 
-    if runner_is 'local'; then
-        echo "PHP binary: $(which php)\n"
-    fi
-
     php_run --version
 
-    if runner_is 'ddev'; then
-        echo
-        ddev status "$@"
-        return $?
-    fi
+    echo
 
-    if runner_is 'docker' || runner_is 'docker-compose'; then
-        echo
-        exec "$(docker_compose_command)" ps "$@"
-    fi
-
-    if runner_is 'symfony'; then
-        echo "\nSymfony binary: $(which symfony)\n"
-        symfony server:status "$@"
-        return $?
-    fi
+    case "$(runner_name)" in
+        docker|docker-compose)
+            exec "$(docker_compose_command)" ps "$@"
+            ;;
+        ddev)
+            exec ddev status "$@"
+            ;;
+        symfony)
+            echo "Symfony binary: $(which symfony)\n"
+            exec symfony server:status "$@"
+            ;;
+        local)
+            echo "PHP binary: $(which php)"
+            ;;
+    esac
 }
 
 app_open() {
