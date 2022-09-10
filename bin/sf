@@ -159,27 +159,41 @@ app_mails() {
 }
 
 run() {
-    runner_is 'symfony' \
-        && symfony run "$@" \
-        || runner_run "$@"
+    if runner_is 'symfony'; then
+        symfony run "$@"
+        return $?
+    fi
+
+    runner_run "$@"
 }
 
 php_run() {
+    if runner_is 'symfony'; then
+        symfony php "$@"
+        return $?
+    fi
+
     runner_run php "$@"
 }
 
 composer_run() {
-    runner_is 'symfony' \
-        && symfony composer "$@" \
-        || runner_run composer "$@"
+    if runner_is 'symfony'; then
+        symfony composer "$@"
+        return $?
+    fi
+
+    runner_run composer "$@"
 }
 
 phpunit_run() {
     declare -r phpunit="$(phpunit_find)"
 
-    [[ -n "${phpunit}" ]] \
-        && php_run "${phpunit}" "$@" \
-        || run phpunit "$@"
+    if [[ -n "${phpunit}" ]]; then
+        php_run "${phpunit}" "$@"
+        return $?
+    fi
+
+    run phpunit "$@"
 }
 
 phpunit_find() {
@@ -208,9 +222,12 @@ phpunit_find() {
 phive_run() {
     declare -r phive="$(phive_find)"
 
-    [[ -n "${phive}" ]] \
-        && php_run "${phive}" "$@" \
-        || run phive "$@"
+    if [[ -n "${phive}" ]]; then
+        php_run "${phive}" "$@"
+        return $?
+    fi
+
+    run phive "$@"
 }
 
 phive_find() {
