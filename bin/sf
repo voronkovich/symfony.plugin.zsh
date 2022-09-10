@@ -22,6 +22,15 @@ main() {
         status)
             app_status "$@"
             ;;
+        open)
+            app_open "$@"
+            ;;
+        psql)
+            app_psql "$@"
+            ;;
+        mails)
+            app_mails "$@"
+            ;;
         run)
             run "$@"
             ;;
@@ -36,15 +45,6 @@ main() {
             ;;
         phive)
             phive_run "$@"
-            ;;
-        psql)
-            psql_run "$@"
-            ;;
-        open)
-            open_browser "$@"
-            ;;
-        mails)
-            open_mails "$@"
             ;;
         *)
             console_run "${cmd}" "$@"
@@ -113,6 +113,54 @@ app_status() {
         return $?
     fi
 }
+
+app_open() {
+    if runner_is 'ddev'; then
+        ddev launch "$@" 2>/dev/null
+        return $?
+    fi
+
+    if runner_is 'symfony'; then
+        symfony open:local "$@"
+        return $?
+    fi
+
+    if runner_is 'docker' || runner_is 'docker-compose'; then
+        open 'https://localhost' 2>/dev/null
+        return $?
+    fi
+
+    open 'http://127.0.0.1:8000' 2>/dev/null
+}
+
+app_psql() {
+    if runner_is 'ddev'; then
+        ddev psql "$@"
+        return $?
+    fi
+
+    if runner_is 'symfony'; then
+        symfony run psql "$@"
+        return $?
+    fi
+
+    runner_not_supported
+}
+
+app_mails() {
+    if runner_is 'ddev'; then
+        ddev launch -m "$@" 2>/dev/null
+        return $?
+    fi
+
+    if runner_is 'symfony'; then
+        symfony open:local:webmail "$@"
+        return $?
+    fi
+
+    runner_not_supported
+}
+
 
 run() {
     if runner_is 'symfony'; then
@@ -206,53 +254,6 @@ console_run() {
 
 console_detect() {
     echo "${SF_CONSOLE:-bin/console}"
-}
-
-psql_run() {
-    if runner_is 'ddev'; then
-        ddev psql "$@"
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        symfony run psql "$@"
-        return $?
-    fi
-
-    runner_not_supported
-}
-
-open_browser() {
-    if runner_is 'ddev'; then
-        ddev launch "$@" 2>/dev/null
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        symfony open:local "$@"
-        return $?
-    fi
-
-    if runner_is 'docker' || runner_is 'docker-compose'; then
-        open 'https://localhost' 2>/dev/null
-        return $?
-    fi
-
-    open 'http://127.0.0.1:8000' 2>/dev/null
-}
-
-open_mails() {
-    if runner_is 'ddev'; then
-        ddev launch -m "$@" 2>/dev/null
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        symfony open:local:webmail "$@"
-        return $?
-    fi
-
-    runner_not_supported
 }
 
 symfony_cli_enabled() {
