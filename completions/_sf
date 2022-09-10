@@ -13,6 +13,10 @@ _sf() {
         _php && return
     fi
 
+    if [[ "${subcmd}" =~ '^(psql|open)$' ]]; then
+        return
+    fi
+
     if [[ "${subcmd}" == 'composer' ]]; then
         cmd+=("${subcmd}")
         subcmd="${line[2]}"
