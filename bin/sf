@@ -345,7 +345,7 @@ runner_detect() {
         return
     fi
 
-    if ddev_enabled && [[ -d "${PWD}/.ddev" ]]; then
+    if ddev_enabled && [[ -f "${PWD}/.ddev/config.yaml" ]]; then
         echo 'ddev exec --'
         return
     fi
