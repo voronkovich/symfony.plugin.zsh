@@ -486,6 +486,39 @@
     assert $output same_as 'Not supported by current runner: bash'
 }
 
+@test 'sf run: Runs comnnand using configured runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='zsh -c'
+
+    run sf run 'echo "Hello, World!"'
+
+    assert $state equals 0
+    assert $output same_as 'Hello, World!'
+}
+
+@test 'sf run: Runs comnnand locally if "local" runner is used' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='local'
+
+    run sf run php -v
+
+    assert $state equals 0
+    assert $output same_as 'php: -v'
+}
+
+@test 'sf run: Uses "symfony run" comnnand if Symfony CLI used' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='symfony'
+
+    run sf run yarn
+
+    assert $state equals 0
+    assert $output same_as 'symfony: run yarn'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
