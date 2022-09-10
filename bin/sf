@@ -15,51 +15,40 @@ main() {
     case "${cmd}" in
         serve|start)
             app_serve "$@"
-            exit $?
             ;;
         stop)
             app_stop "$@"
-            exit $?
             ;;
         status)
             app_status "$@"
-            exit $?
             ;;
         run)
             run "$@"
-            exit $?
             ;;
         php)
             php_run "$@"
-            exit $?
             ;;
         composer)
             composer_run "$@"
-            exit $?
             ;;
         phpunit)
             phpunit_run "$@"
-            exit $?
             ;;
         phive)
             phive_run "$@"
-            exit $?
             ;;
         psql)
             psql_run "$@"
-            exit $?
             ;;
         open)
             open_browser "$@"
-            exit $?
             ;;
         mails)
             open_mails "$@"
-            exit $?
             ;;
+        *)
+            console_run "${cmd}" "$@"
     esac
-
-    console_run "${cmd}" "$@"
 }
 
 app_serve() {
