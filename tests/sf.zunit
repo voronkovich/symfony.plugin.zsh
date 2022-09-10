@@ -420,6 +420,17 @@
     assert $output same_as 'Not supported by current runner: docker compose exec -- symfony'
 }
 
+@test 'sf stop: Not supported for unknown runners' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='zsh -c'
+
+    run sf mails
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: zsh -c'
+}
+
 @test 'sf psql: Supported by Symfony CLI' {
     cd "${FIXTURES_PATH}/app"
 
