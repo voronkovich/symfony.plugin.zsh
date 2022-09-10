@@ -547,6 +547,34 @@
     assert $output same_as 'docker: compose exec -- php php index.php'
 }
 
+@test 'sf composer: Runs composer using configured runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='local'
+    run sf composer req orm
+
+    assert $state equals 0
+    assert $output same_as 'composer: req orm'
+
+    export SF_RUNNER='symfony'
+    run symfony composer req orm
+
+    assert $state equals 0
+    assert $output same_as 'symfony: composer req orm'
+
+    export SF_RUNNER='ddev exec --'
+    run sf composer req orm
+
+    assert $state equals 0
+    assert $output same_as 'ddev: exec -- composer req orm'
+
+    export SF_RUNNER='docker compose exec -- php'
+    run sf composer req orm
+
+    assert $state equals 0
+    assert $output same_as 'docker: compose exec -- php composer req orm'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
