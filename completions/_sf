@@ -16,16 +16,6 @@ _sf() {
         _arguments '1: :->cmds' '2: :->cmds' '*: :->args' && ret=0
     fi
 
-    if [[ "${subcmd}" == 'phpunit' ]]; then
-        IFS=$'\n' local opts_list=(
-            $'-d[Sets a php.ini value]'
-            $("${cmd[@]}" "${subcmd}" --help 2>/dev/null | __symfony_complete_options_extract)
-        )
-        _arguments '*: :_files' ${opts_list} && ret=0
-
-        return
-    fi
-
     case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=(
@@ -52,9 +42,19 @@ _sf() {
             _values '' ${cmds_list} && ret=0
             ;;
         args)
-            IFS=$'\n' local opts_list=(
-                $("${cmd[@]}" "${subcmd}" --help --no-ansi 2>/dev/null | __symfony_complete_options)
-            )
+            local -a opts_list=()
+
+            if [[ "${line[1]}" == 'phpunit' ]]; then
+                IFS=$'\n' opts_list+=(
+                    $'-d[Sets a php.ini value]'
+                    $("${cmd[@]}" "${subcmd}" --help 2>/dev/null | __symfony_complete_options_extract)
+                )
+            else
+                IFS=$'\n' opts_list+=(
+                    $("${cmd[@]}" "${subcmd}" --help --no-ansi 2>/dev/null | __symfony_complete_options)
+                )
+            fi
+
             _arguments '*: :_files' ${opts_list} && ret=0
             ;;
     esac
