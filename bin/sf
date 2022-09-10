@@ -183,10 +183,26 @@ phpunit_run() {
 }
 
 phpunit_find() {
-    find_first_existing_file \
+    declare phpunit="$(find_first_existing_file \
         'bin/phpunit' \
         'vendor/bin/phpunit' \
-    ;
+    )"
+
+    if [[ -n "${phpunit}" ]]; then
+        echo "${phpunit}"
+        return
+    fi
+
+    if runner_is 'symfony'; then
+        phpunit="$(which phpunit 2>/dev/null)"
+
+        if [[ $? -eq 0 && -f "${phpunit}" ]]; then
+            echo "${phpunit}"
+            return
+        fi
+    fi
+
+    return 1
 }
 
 phive_run() {

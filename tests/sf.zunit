@@ -575,6 +575,62 @@
     assert $output same_as 'docker: compose exec -- php composer req orm'
 }
 
+@test 'sf phpunit: Runs locally installed phpunit using configured runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='local'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'php: bin/phpunit tests/FooTest.php'
+
+    export SF_RUNNER='symfony'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'symfony: php bin/phpunit tests/FooTest.php'
+
+    export SF_RUNNER='ddev exec --'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'ddev: exec -- php bin/phpunit tests/FooTest.php'
+
+    export SF_RUNNER='docker compose exec -- php'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'docker: compose exec -- php php bin/phpunit tests/FooTest.php'
+}
+
+@test 'sf phpunit: Runs globally installed phpunit if local binary not found' {
+    cd "${FIXTURES_PATH}/app-laravel"
+
+    export SF_RUNNER='local'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'phpunit: tests/FooTest.php'
+
+    export SF_RUNNER='symfony'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as "symfony: php ${FIXTURES_PATH}/stubs/phpunit tests/FooTest.php"
+
+    export SF_RUNNER='ddev exec --'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'ddev: exec -- phpunit tests/FooTest.php'
+
+    export SF_RUNNER='docker compose exec -- php'
+    run sf phpunit tests/FooTest.php
+
+    assert $state equals 0
+    assert $output same_as 'docker: compose exec -- php phpunit tests/FooTest.php'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
