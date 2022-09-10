@@ -52,37 +52,36 @@ main() {
 }
 
 app_serve() {
-    if runner_is 'docker' || runner_is 'docker-compose'; then
-        exec "$(docker_compose_command)" up "$@"
-    fi
-
-    if runner_is 'ddev'; then
-        exec ddev start "$@"
-    fi
-
-    if runner_is 'symfony'; then
-        exec symfony serve "$@"
-    fi
-
-    if runner_is 'local'; then
-        exec local_serve "$@"
-    fi
+    case "$(runner_name)" in
+        docker|docker-compose)
+            exec "$(docker_compose_command)" up "$@"
+            ;;
+        ddev)
+            exec ddev start "$@"
+            ;;
+        symfony)
+            exec symfony serve "$@"
+            ;;
+        local)
+            exec local_serve "$@"
+            ;;
+    esac
 
     runner_not_supported
 }
 
 app_stop() {
-    if runner_is 'docker' || runner_is 'docker-compose'; then
-        exec "$(docker_compose_command)" down "$@"
-    fi
-
-    if runner_is 'ddev'; then
-        exec ddev stop "$@"
-    fi
-
-    if runner_is 'symfony'; then
-        exec symfony server:stop "$@"
-    fi
+    case "$(runner_name)" in
+        docker|docker-compose)
+            exec "$(docker_compose_command)" down "$@"
+            ;;
+        ddev)
+            exec ddev stop "$@"
+            ;;
+        symfony)
+            exec symfony server:stop "$@"
+            ;;
+    esac
 
     runner_not_supported
 }
