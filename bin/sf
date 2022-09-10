@@ -112,20 +112,20 @@ app_status() {
 }
 
 app_open() {
-    if runner_is 'ddev'; then
-        ddev launch "$@" 2>/dev/null
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        symfony open:local "$@"
-        return $?
-    fi
-
-    if runner_is 'docker' || runner_is 'docker-compose'; then
-        open 'https://localhost' 2>/dev/null
-        return $?
-    fi
+    case "$(runner_name)" in
+        docker|docker-compose)
+            open 'https://localhost' 2>/dev/null
+            return $?
+            ;;
+        ddev)
+            ddev launch "$@" 2>/dev/null
+            return $?
+            ;;
+        symfony)
+            symfony open:local "$@"
+            return $?
+            ;;
+    esac
 
     open 'http://127.0.0.1:8000' 2>/dev/null
 }
