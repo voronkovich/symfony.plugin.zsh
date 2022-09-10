@@ -221,12 +221,67 @@
     assert $output same_as 'ddev: start'
 }
 
-@test 'sf serve: Not supported for unknown runner' {
+@test 'sf serve: Not supported for unknown runners' {
     cd "${FIXTURES_PATH}/app"
 
     export SF_RUNNER=bash
 
     run sf serve
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: bash'
+}
+
+@test 'sf stop: Supported by Symfony CLI' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='symfony'
+
+    run sf stop
+
+    assert $state equals 0
+    assert $output same_as 'symfony: server:stop'
+}
+
+@test 'sf stop: Supported by Docker' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker compose exec -- symfony'
+
+    run sf stop
+
+    assert $state equals 0
+    assert $output same_as 'docker-compose: down'
+}
+
+@test 'sf stop: Supported by DDEV' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='ddev exec --'
+
+    run sf stop
+
+    assert $state equals 0
+    assert $output same_as 'ddev: stop'
+}
+
+@test 'sf stop: Not supported by "local" runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf stop
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: local'
+}
+
+@test 'sf stop: Not supported for unknown runners' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=bash
+
+    run sf stop
 
     assert $state equals 1
     assert $output same_as 'Not supported by current runner: bash'
@@ -407,6 +462,17 @@
 
     assert $state equals 1
     assert $output same_as 'Not supported by current runner: docker compose exec -- symfony'
+}
+
+@test 'sf psql: Not supported for unknown runners' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=bash
+
+    run sf psql
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: bash'
 }
 
 @setup {
