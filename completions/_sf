@@ -9,6 +9,10 @@ _sf() {
     local cmd=("${words[1]}")
     local subcmd="${line[1]}"
 
+    if [[ "${subcmd}" == 'php' ]]; then
+        _php && return
+    fi
+
     if [[ "${subcmd}" == 'composer' ]]; then
         cmd+=("${subcmd}")
         subcmd="${line[2]}"
