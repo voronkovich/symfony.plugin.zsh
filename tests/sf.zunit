@@ -87,12 +87,12 @@
 @test 'sf: allows to set runner via SF_RUNNER env' {
     cd "${FIXTURES_PATH}/app"
 
-    export SF_RUNNER='docker compose exec php'
+    export SF_RUNNER='docker compose exec -- php'
 
     run sf debug:router
 
     assert $state equals 0
-    assert $output same_as 'docker: compose exec php php bin/console debug:router'
+    assert $output same_as 'docker: compose exec -- php php bin/console debug:router'
 }
 
 @test 'sf: loads configuration from .env and .env.local files' {
@@ -517,6 +517,34 @@
 
     assert $state equals 0
     assert $output same_as 'symfony: run yarn'
+}
+
+@test 'sf php: Runs PHP using configured runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='local'
+    run sf php index.php
+
+    assert $state equals 0
+    assert $output same_as 'php: index.php'
+
+    export SF_RUNNER='symfony'
+    run sf php index.php
+
+    assert $state equals 0
+    assert $output same_as 'symfony: php index.php'
+
+    export SF_RUNNER='ddev exec --'
+    run sf php index.php
+
+    assert $state equals 0
+    assert $output same_as 'ddev: exec -- php index.php'
+
+    export SF_RUNNER='docker compose exec -- php'
+    run sf php index.php
+
+    assert $state equals 0
+    assert $output same_as 'docker: compose exec -- php php index.php'
 }
 
 @setup {
