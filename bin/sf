@@ -161,7 +161,6 @@ app_mails() {
     runner_not_supported
 }
 
-
 run() {
     if runner_is 'symfony'; then
         symfony run "$@"
