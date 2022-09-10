@@ -16,6 +16,16 @@ _sf() {
         _arguments '1: :->cmds' '2: :->cmds' '*: :->args' && ret=0
     fi
 
+    if [[ "${subcmd}" == 'phpunit' ]]; then
+        IFS=$'\n' local opts_list=(
+            $'-d[Sets a php.ini value]'
+            $("${cmd[@]}" "${subcmd}" --help 2>/dev/null | __symfony_complete_options_extract)
+        )
+        _arguments '*: :_files' ${opts_list} && ret=0
+
+        return
+    fi
+
     case ${state} in
         cmds)
             IFS=$'\n' local cmds_list=(
