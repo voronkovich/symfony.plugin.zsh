@@ -114,18 +114,20 @@ app_status() {
 }
 
 app_open() {
+    declare -r urlpath="${1##/}"
+
     case "$(runner_name)" in
         docker|docker-compose)
-            open 'https://localhost' 2>/dev/null
+            open "${SF_OPEN_URL:-https://localhost}/${urlpath}" 2>/dev/null
             ;;
         ddev)
             ddev launch "$@" 2>/dev/null
             ;;
         symfony)
-            symfony open:local "$@"
+            symfony open:local "${urlpath+--path=/}${urlpath}"
             ;;
         *)
-            open 'http://127.0.0.1:8000' 2>/dev/null
+            open "${SF_OPEN_URL:-http://127.0.0.1:8000}/${urlpath}" 2>/dev/null
             ;;
     esac
 }

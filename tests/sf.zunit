@@ -687,6 +687,46 @@
     assert $output same_as 'docker: compose exec -- php phive install'
 }
 
+@test 'sf open: Allows to set url via SF_OPEN_URL env' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='local'
+    export SF_OPEN_URL='https://app.dev'
+
+    run sf open /admin
+
+    assert $state equals 0
+    assert $output same_as 'open: https://app.dev/admin'
+
+    export SF_RUNNER='docker compose exec -- php'
+
+    run sf open /admin
+
+    assert $state equals 0
+    assert $output same_as 'open: https://app.dev/admin'
+}
+
+@test 'sf open: Supported by Symfony CLI' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='symfony'
+    export SF_OPEN_URL='https://app.dev'
+
+    run sf open /admin
+
+    assert $state equals 0
+    assert $output same_as 'symfony: open:local --path=/admin'
+}
+
+@test 'sf open: Supported by DDEV' {
+    cd "${FIXTURES_PATH}/app-ddev"
+
+    run sf open /admin
+
+    assert $state equals 0
+    assert $output same_as 'ddev: launch /admin'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
