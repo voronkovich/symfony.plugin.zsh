@@ -8,10 +8,7 @@ main() {
     declare -r app_runner="$(runner_detect)"
     declare -r app_console="$(console_detect)"
 
-    if [[ -z "${app_runner}" ]]; then
-        echo 'Runner is not configured.' 2>/dev/null
-        exit 1
-    fi
+    [[ -n "${app_runner}" ]] || fail 'Runner is not configured.'
 
     local cmd="${1}" && shift 2>/dev/null
 
@@ -207,7 +204,7 @@ phive_find() {
 
 console_run() {
     if [[ ! -f "${app_console}" ]]; then
-        echo "Console not found: ${app_console}" >&2
+        error "Console not found: ${app_console}"
         return 1
     fi
 
@@ -383,12 +380,8 @@ runner_name() {
     echo "${app_runner%% *}"
 }
 
-runner_exit_if_not_configured() {
-}
-
 runner_not_supported() {
-    echo "Not supported by current runner: ${app_runner}" >&2
-    exit 1
+    fail "Not supported by current runner: ${app_runner}"
 }
 
 config_load_env_files() {
@@ -414,6 +407,15 @@ find_first_existing_file() {
     done
 
     return 1
+}
+
+fail() {
+    error "$@"
+    exit 1
+}
+
+error() {
+    echo "$@" >&2
 }
 
 unquote() {
