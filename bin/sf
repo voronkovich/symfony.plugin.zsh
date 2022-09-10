@@ -2,11 +2,16 @@
 
 declare -r app_name="${0##*/}"
 
-main() (
+main() {
     config_load_env_files
 
     declare -r app_runner="$(runner_detect)"
     declare -r app_console="$(console_detect)"
+
+    if [[ -z "${app_runner}" ]]; then
+        echo 'Runner is not configured.' 2>/dev/null
+        exit 1
+    fi
 
     local cmd="${1}" && shift 2>/dev/null
 
@@ -58,7 +63,7 @@ main() (
     esac
 
     console_run "${cmd}" "$@"
-)
+}
 
 app_serve() {
     if runner_is 'docker' || runner_is 'docker-compose'; then
@@ -73,34 +78,11 @@ app_serve() {
         exec symfony serve "$@"
     fi
 
-    local help port=('--port' '8000') root=('--document-root' 'public')
-
-    zmodload zsh/zutil
-    zparseopts -D -F -K -- \
-        {h,-help}=help \
-        -no-ansi=noansi \
-        -port:=port \
-        -document-root:=root \
-        || return 1
-
-    if [[ -n "${help}" ]]; then
-        cat <<HELP
-Run a local web server
-
-Usage:
-
-  ${app_name} [options]
-
-Options:
-
-  --port=value           Preferred HTTP port [default: ${port[2]}]
-  --document-root=value  Project document root [default: ${root[2]}]
-  -h, --help             Show this help
-HELP
-        return 0
+    if runner_is 'local'; then
+        exec local_serve "$@"
     fi
 
-    exec php -S "127.0.0.1:${port[2]/=}" -t "${root[2]/=}"
+    runner_not_supported
 }
 
 app_stop() {
@@ -313,16 +295,42 @@ docker_compose_command() {
         || echo 'docker compose'
 }
 
+local_serve() {
+    local help port=('--port' '8000') root=('--document-root' 'public')
+
+    zmodload zsh/zutil
+    zparseopts -D -F -K -- \
+        {h,-help}=help \
+        -no-ansi=noansi \
+        -port:=port \
+        -document-root:=root \
+        || return 1
+
+    if [[ -n "${help}" ]]; then
+        cat <<HELP
+Run a local web server
+
+Usage:
+
+  ${app_name} [options]
+
+Options:
+
+  --port=value           Preferred HTTP port [default: ${port[2]}]
+  --document-root=value  Project document root [default: ${root[2]}]
+  -h, --help             Show this help
+HELP
+        return 0
+    fi
+
+    exec php -S "127.0.0.1:${port[2]/=}" -t "${root[2]/=}"
+}
+
 local_enabled() {
     feature_enabled "${SF_LOCAL:-on}"
 }
 
 runner_run() {
-    if [[ -z "${app_runner}" ]]; then
-        echo 'Runner is not configured.' 2>/dev/null
-        return 1
-    fi
-
     runner_is 'local' && "$@" || "${(@s: :)app_runner}" "$@"
 }
 
@@ -373,6 +381,9 @@ runner_is() {
 
 runner_name() {
     echo "${app_runner%% *}"
+}
+
+runner_exit_if_not_configured() {
 }
 
 runner_not_supported() {
