@@ -129,6 +129,19 @@ The `sf` command can be configured via following environment variables:
    export SF_SYMFONY_CLI=off
    ```
 
+- `SF_LOCAL` enbales/disables local runner
+
+   **Allowed values:** "on", "off"
+
+   **Default:** "on"
+
+   When enabled `sf` will use a default system php installation as a fallback
+
+   ```sh
+   # Disable local
+   export SF_LOCAL=off
+   ```
+
 You can put the configuration in your global `.zshrc` file or in a local `.env` or `.env.local` files inside of your project's root.
 
 ## Laravel

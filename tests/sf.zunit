@@ -30,7 +30,24 @@
 
     assert $state equals 0
     assert $output contains 'php: bin/console list --no-ansi'
+}
 
+@test 'sf: allows to disable "local" runner via SF_LOCAL=off' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_SYMFONY_CLI=off
+
+    export SF_LOCAL=on
+    run sf debug:router
+
+    assert $state equals 0
+    assert $output same_as 'php: bin/console debug:router'
+
+    export SF_LOCAL=off
+    run sf debug:router
+
+    assert $state equals 1
+    assert $output same_as 'Runner is not configured.'
 }
 
 @test 'sf: runs default console command if no arguments provided' {
@@ -67,7 +84,7 @@
     assert $output same_as 'php: artisan about'
 }
 
-@test 'sf: allows to set "runner" via SF_RUNNER env' {
+@test 'sf: allows to set runner via SF_RUNNER env' {
     cd "${FIXTURES_PATH}/app"
 
     export SF_RUNNER='docker compose exec php'

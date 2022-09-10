@@ -313,7 +313,16 @@ docker_compose_command() {
         || echo 'docker compose'
 }
 
+local_enabled() {
+    feature_enabled "${SF_LOCAL:-on}"
+}
+
 runner_run() {
+    if [[ -z "${app_runner}" ]]; then
+        echo 'Runner is not configured.' 2>/dev/null
+        return 1
+    fi
+
     runner_is 'local' && "$@" || "${(@s: :)app_runner}" "$@"
 }
 
@@ -350,7 +359,12 @@ runner_detect() {
         return
     fi
 
-    echo 'local'
+    if local_enabled; then
+        echo 'local'
+        return
+    fi
+
+    return 1
 }
 
 runner_is() {
