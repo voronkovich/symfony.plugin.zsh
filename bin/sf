@@ -65,9 +65,10 @@ app_serve() {
         local)
             exec local_serve "$@"
             ;;
+        *)
+            runner_not_supported
+            ;;
     esac
-
-    runner_not_supported
 }
 
 app_stop() {
@@ -81,9 +82,10 @@ app_stop() {
         symfony)
             exec symfony server:stop "$@"
             ;;
+        *)
+            runner_not_supported
+            ;;
     esac
-
-    runner_not_supported
 }
 
 app_status() {
@@ -115,56 +117,51 @@ app_open() {
     case "$(runner_name)" in
         docker|docker-compose)
             open 'https://localhost' 2>/dev/null
-            return $?
             ;;
         ddev)
             ddev launch "$@" 2>/dev/null
-            return $?
             ;;
         symfony)
             symfony open:local "$@"
-            return $?
+            ;;
+        *)
+            open 'http://127.0.0.1:8000' 2>/dev/null
             ;;
     esac
-
-    open 'http://127.0.0.1:8000' 2>/dev/null
 }
 
 app_psql() {
-    if runner_is 'ddev'; then
-        ddev psql "$@"
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        symfony run psql "$@"
-        return $?
-    fi
-
-    runner_not_supported
+    case "$(runner_name)" in
+        ddev)
+            ddev psql "$@"
+            ;;
+        symfony)
+            symfony run psql "$@"
+            ;;
+        *)
+            runner_not_supported
+            ;;
+    esac
 }
 
 app_mails() {
-    if runner_is 'ddev'; then
-        ddev launch -m "$@" 2>/dev/null
-        return $?
-    fi
-
-    if runner_is 'symfony'; then
-        symfony open:local:webmail "$@"
-        return $?
-    fi
-
-    runner_not_supported
+    case "$(runner_name)" in
+        ddev)
+            ddev launch -m "$@" 2>/dev/null
+            ;;
+        symfony)
+            symfony open:local:webmail "$@"
+            ;;
+        *)
+            runner_not_supported
+            ;;
+    esac
 }
 
 run() {
-    if runner_is 'symfony'; then
-        symfony run "$@"
-        return $?
-    fi
-
-    runner_run "$@"
+    runner_is 'symfony' \
+        && symfony run "$@" \
+        || runner_run "$@"
 }
 
 php_run() {
@@ -172,23 +169,17 @@ php_run() {
 }
 
 composer_run() {
-    if runner_is 'symfony'; then
-        symfony composer "$@"
-        return $?
-    fi
-
-    runner_run composer "$@"
+    runner_is 'symfony' \
+        && symfony composer "$@" \
+        || runner_run composer "$@"
 }
 
 phpunit_run() {
     declare -r phpunit="$(phpunit_find)"
 
-    if [[ -z "${phpunit}" ]]; then
-        run phpunit "$@"
-        return $?
-    fi
-
-    php_run "${phpunit}" "$@"
+    [[ -n "${phpunit}" ]] \
+        && php_run "${phpunit}" "$@" \
+        || run phpunit "$@"
 }
 
 phpunit_find() {
@@ -201,12 +192,9 @@ phpunit_find() {
 phive_run() {
     declare -r phive="$(phive_find)"
 
-    if [[ -z "${phive}" ]]; then
-        run phive "$@"
-        return $?
-    fi
-
-    php_run "${phive}" "$@"
+    [[ -n "${phive}" ]] \
+        && php_run "${phive}" "$@" \
+        || run phive "$@"
 }
 
 phive_find() {
