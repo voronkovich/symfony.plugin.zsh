@@ -166,6 +166,249 @@
     assert $output contains 'php: bin/console debug:container --show-envs'
 }
 
+@test 'sf serve: Uses built-in PHP web server when "local" runner is used' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf serve
+
+    assert $state equals 0
+    assert $output same_as 'php: -S 127.0.0.1:8000 -t public'
+}
+
+@test 'sf serve: Allows to set port and public directory if "local" runner is used' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf serve --port=9000 --document-root=web
+
+    assert $state equals 0
+    assert $output same_as 'php: -S 127.0.0.1:9000 -t web'
+}
+
+@test 'sf serve: Supported by Symfony CLI' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='symfony'
+
+    run sf serve -d
+
+    assert $state equals 0
+    assert $output same_as 'symfony: serve -d'
+}
+
+@test 'sf serve: Supported by Docker' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker compose exec -- symfony'
+
+    run sf serve -d
+
+    assert $state equals 0
+    assert $output same_as 'docker-compose: up -d'
+}
+
+@test 'sf serve: Supported by DDEV' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='ddev exec --'
+
+    run sf serve
+
+    assert $state equals 0
+    assert $output same_as 'ddev: start'
+}
+
+@test 'sf serve: Not supported for unknown runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=bash
+
+    run sf serve
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: bash'
+}
+
+@test 'sf status: Shows current runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[1]}" same_as 'Runner: local'
+
+    export SF_RUNNER=symfony
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[1]}" same_as 'Runner: symfony'
+}
+
+@test 'sf status: Shows current console' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_CONSOLE=bin/console
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[2]}" same_as 'Console: bin/console'
+
+    export SF_CONSOLE=artisan
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[2]}" same_as 'Console: artisan'
+}
+
+@test 'sf status: Shows PHP version' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[4]}" same_as 'php: --version'
+}
+
+@test 'sf status: Shows PHP binary path for "local" runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[6]}" same_as "PHP binary: ${FIXTURES_PATH}/stubs/php"
+}
+
+@test 'sf status: Shows Symfony CLI binary path and server status if Symfony CLI used' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=symfony
+
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[6]}" same_as "Symfony binary: ${FIXTURES_PATH}/stubs/symfony"
+    assert "${lines[8]}" same_as 'symfony: server:status'
+}
+
+@test 'sf status: Shows services status for Docker' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker compose exec -- symfony'
+
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[6]}" same_as 'docker-compose: ps'
+}
+
+@test 'sf status: Shows services status for DDEV' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='ddev exec --'
+
+    run sf status
+
+    assert $state equals 0
+    assert "${lines[6]}" same_as 'ddev: status'
+}
+
+
+@test 'sf mails: Supported by Symfony CLI' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=symfony
+
+    run sf mails
+
+    assert $state equals 0
+    assert $output same_as 'symfony: open:local:webmail'
+}
+
+@test 'sf mails: Supported by DDEV' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=ddev
+
+    run sf mails
+
+    assert $state equals 0
+    assert $output same_as 'ddev: launch -m'
+}
+
+@test 'sf mails: Not supported by "local" runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf mails
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: local'
+}
+
+@test 'sf mails: Not supported by Docker' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker compose exec -- symfony'
+
+    run sf mails
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: docker compose exec -- symfony'
+}
+
+@test 'sf psql: Supported by Symfony CLI' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=symfony
+
+    run sf psql
+
+    assert $state equals 0
+    assert $output same_as 'symfony: run psql'
+}
+
+@test 'sf psql: Supported by DDEV' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=ddev
+
+    run sf psql
+
+    assert $state equals 0
+    assert $output same_as 'ddev: psql'
+}
+
+@test 'sf psql: Not supported by "local" runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf psql
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: local'
+}
+
+@test 'sf psql: Not supported by Docker' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker compose exec -- symfony'
+
+    run sf psql
+
+    assert $state equals 1
+    assert $output same_as 'Not supported by current runner: docker compose exec -- symfony'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
