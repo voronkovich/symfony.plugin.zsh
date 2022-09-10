@@ -631,6 +631,62 @@
     assert $output same_as 'docker: compose exec -- php phpunit tests/FooTest.php'
 }
 
+@test 'sf phive: Runs locally installed phive using configured runner' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='local'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'php: phive.phar install'
+
+    export SF_RUNNER='symfony'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'symfony: php phive.phar install'
+
+    export SF_RUNNER='ddev exec --'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'ddev: exec -- php phive.phar install'
+
+    export SF_RUNNER='docker compose exec -- php'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'docker: compose exec -- php php phive.phar install'
+}
+
+@test 'sf phive: Runs globally installed phive if local binary not found' {
+    cd "${FIXTURES_PATH}/app-laravel"
+
+    export SF_RUNNER='local'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'phive: install'
+
+    export SF_RUNNER='symfony'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as "symfony: php ${FIXTURES_PATH}/stubs/phive install"
+
+    export SF_RUNNER='ddev exec --'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'ddev: exec -- phive install'
+
+    export SF_RUNNER='docker compose exec -- php'
+    run sf phive install
+
+    assert $state equals 0
+    assert $output same_as 'docker: compose exec -- php phive install'
+}
+
 @setup {
     path=("${PWD}/bin" "${PWD}/tests/_fixtures/stubs" $path)
     FIXTURES_PATH="${PWD}/tests/_fixtures"
