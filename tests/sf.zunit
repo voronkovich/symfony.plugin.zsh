@@ -431,8 +431,19 @@
     assert $output same_as 'Not supported by current runner: zsh -c'
 }
 
-@test 'sf psql: Supported by Symfony CLI' {
+@test 'sf psql: Runs locally installed psql by default' {
     cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER=local
+
+    run sf psql
+
+    assert $state equals 0
+    assert $output same_as 'psql: '
+}
+
+@test 'sf psql: Supported by Symfony CLI only if docker-compose file presents' {
+    cd "${FIXTURES_PATH}/app-docker"
 
     export SF_RUNNER=symfony
 
@@ -451,39 +462,6 @@
 
     assert $state equals 0
     assert $output same_as 'ddev: psql'
-}
-
-@test 'sf psql: Not supported by "local" runner' {
-    cd "${FIXTURES_PATH}/app"
-
-    export SF_RUNNER=local
-
-    run sf psql
-
-    assert $state equals 1
-    assert $output same_as 'Not supported by current runner: local'
-}
-
-@test 'sf psql: Not supported by Docker' {
-    cd "${FIXTURES_PATH}/app"
-
-    export SF_RUNNER='docker compose exec -- symfony'
-
-    run sf psql
-
-    assert $state equals 1
-    assert $output same_as 'Not supported by current runner: docker compose exec -- symfony'
-}
-
-@test 'sf psql: Not supported for unknown runners' {
-    cd "${FIXTURES_PATH}/app"
-
-    export SF_RUNNER=bash
-
-    run sf psql
-
-    assert $state equals 1
-    assert $output same_as 'Not supported by current runner: bash'
 }
 
 @test 'sf run: Runs comnnand using configured runner' {

@@ -26,7 +26,7 @@ main() {
             app_open "$@"
             ;;
         psql)
-            app_psql "$@"
+            psql_run "$@"
             ;;
         mails)
             app_mails "$@"
@@ -132,18 +132,27 @@ app_open() {
     esac
 }
 
-app_psql() {
+psql_run() {
     case "$(runner_name)" in
         ddev)
             ddev psql "$@"
+            return $?
             ;;
         symfony)
-            symfony run psql "$@"
-            ;;
-        *)
-            runner_not_supported
+            if docker_find_compose_file &>/dev/null; then
+                symfony run psql "$@"
+                return $?
+            fi
             ;;
     esac
+
+    psql "$(psql_database_url)" "$@"
+}
+
+psql_database_url() {
+    declare -r database_url="$(console_env DATABASE_URL)"
+
+    echo "${database_url//\?*}"
 }
 
 app_mails() {
@@ -273,6 +282,17 @@ console_run() {
 
 console_detect() {
     echo "${SF_CONSOLE:-bin/console}"
+}
+
+console_is_symfony() {
+    [[ "${app_console}" == 'bin/console' ]]
+}
+
+console_env() {
+    console_is_symfony || return
+
+    console_run debug:container --no-ansi --env-var "${1}" \
+        | sed -nE 's/^\s*Processed value\s+"([^"]+)"/\1/p'
 }
 
 symfony_cli_enabled() {
