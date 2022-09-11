@@ -296,15 +296,15 @@ console_env() {
 }
 
 symfony_cli_enabled() {
-    feature_enabled "${SF_SYMFONY_CLI:-on}"
+    config_is_feature_enabled "${SF_SYMFONY_CLI:-on}"
 }
 
 ddev_enabled() {
-    feature_enabled "${SF_DDEV:-on}"
+    config_is_feature_enabled "${SF_DDEV:-on}"
 }
 
 docker_enabled() {
-    feature_enabled "${SF_DOCKER:-on}"
+    config_is_feature_enabled "${SF_DOCKER:-on}"
 }
 
 docker_find_compose_file() {
@@ -352,7 +352,7 @@ HELP
 }
 
 local_enabled() {
-    feature_enabled "${SF_LOCAL:-on}"
+    config_is_feature_enabled "${SF_LOCAL:-on}"
 }
 
 runner_run() {
@@ -413,17 +413,17 @@ runner_not_supported() {
 }
 
 config_load_env_files() {
-    [[ -f "${PWD}/.env" ]] && config_process <"${PWD}/.env"
-    [[ -f "${PWD}/.env.local" ]] && config_process <"${PWD}/.env.local"
+    [[ -f "${PWD}/.env" ]] && config_process_envs <"${PWD}/.env"
+    [[ -f "${PWD}/.env.local" ]] && config_process_envs <"${PWD}/.env.local"
 }
 
-config_process() {
+config_process_envs() {
     grep -E '^[[:space:]]*SF_\w+=' | while IFS='=' read -r key value; do
         export "${key}"="$(unquote <<<"${value}")"
     done
 }
 
-feature_enabled() {
+config_is_feature_enabled() {
     [[ ! "${1}" =~ '^(0|no|off|false|disabled?)$' ]]
 }
 
