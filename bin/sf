@@ -54,16 +54,16 @@ main() {
 app_serve() {
     case "$(runner_name)" in
         docker|docker-compose)
-            exec "$(docker_compose_command)" up "$@"
+            docker_compose_run up "$@"
             ;;
         ddev)
-            exec ddev start "$@"
+            ddev start "$@"
             ;;
         symfony)
-            exec symfony serve "$@"
+            symfony serve "$@"
             ;;
         local)
-            exec local_serve "$@"
+            local_serve "$@"
             ;;
         *)
             runner_not_supported
@@ -74,13 +74,13 @@ app_serve() {
 app_stop() {
     case "$(runner_name)" in
         docker|docker-compose)
-            exec "$(docker_compose_command)" down "$@"
+            docker_compose_run down "$@"
             ;;
         ddev)
-            exec ddev stop "$@"
+            ddev stop "$@"
             ;;
         symfony)
-            exec symfony server:stop "$@"
+            symfony server:stop "$@"
             ;;
         *)
             runner_not_supported
@@ -98,14 +98,14 @@ app_status() {
 
     case "$(runner_name)" in
         docker|docker-compose)
-            exec "$(docker_compose_command)" ps "$@"
+            docker_compose_run ps "$@"
             ;;
         ddev)
-            exec ddev status "$@"
+            ddev status "$@"
             ;;
         symfony)
             echo "Symfony binary: $(which symfony)\n"
-            exec symfony server:status "$@"
+            symfony server:status "$@"
             ;;
         local)
             echo "PHP binary: $(which php)"
@@ -134,6 +134,12 @@ app_open() {
 
 psql_run() {
     case "$(runner_name)" in
+        docker|docker-compose)
+            declare -r database_url="$(psql_database_url)"
+            declare -r service="$(psql_database_host "${database_url}")"
+
+            docker_compose_run exec -- "${service}" psql "${database_url}" "$@"
+            ;;
         ddev)
             ddev psql "$@"
             return $?
@@ -143,20 +149,13 @@ psql_run() {
                 symfony run psql "$@"
                 return $?
             fi
+            ;&
+        *)
+            declare -r database_url="$(psql_database_url)"
+
+            psql "${database_url}" "$@"
             ;;
     esac
-
-    declare -r database_url="$(psql_database_url)"
-
-    if runner_is 'docker' || runner_is 'docker-compose'; then
-        declare -r service="$(psql_database_host "${database_url}")"
-
-        docker_compose_run exec -- "${service}" psql "${database_url}" "$@"
-
-        return $?
-    fi
-
-    psql "${database_url}" "$@"
 }
 
 psql_database_url() {
