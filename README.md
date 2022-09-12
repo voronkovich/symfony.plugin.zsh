@@ -16,30 +16,32 @@ A zsh plugin for the [Symfony](https://symfony.com/) PHP framework.
 
 If yout need an autocompletion, please, install [symfony-complete.plugin.zsh](https://github.com/voronkovich/symfony-complete.plugin.zsh) first.
 
-[Antigen](https://github.com/zsh-users/antigen):
+### [Antigen](https://github.com/zsh-users/antigen)
 
 ```sh
 antigen bundle voronkovich/symfony.plugin.zsh
 ```
-[Zplug](https://github.com/zplug/zplug):
+### [Zplug](https://github.com/zplug/zplug)
 
 ```sh
 zplug "voronkovich/symfony.plugin.zsh"
 ```
 
-[Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh):
+### [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)
 
 ```sh
 git clone https://github.com/voronkovich/symfony.plugin.zsh ~/.oh-my-zsh/custom/plugins/symfony
 ```
 
-Edit `~/.zshrc` to enable the plugin:
+Edit `.zshrc` to enable the plugin:
 
 ```sh
 plugins=(... symfony)
 ```
 
-Or clone this repo and add this into your `.zshrc`:
+### Manual
+
+Clone this repo and add this into your `.zshrc`:
 
 ```sh
 source path/to/cloned/repo/symfony.plugin.zsh
@@ -50,7 +52,7 @@ source path/to/cloned/repo/symfony.plugin.zsh
 This plugin provides some usefull commands and shortcuts:
 
 * `sf` is used for running Symfony's [console commands](https://symfony.com/doc/current/console.html) e.g. `sf debug:router`, `sf c:c` and etc. But it also has some special subcommands:
-  - `serve` runs a development web server. Depending on configuration it will use `docker compose up`,  `symfony serve`, `ddev start` or `php -S`;
+  - `serve` runs a development web server. Depending on configuration it will use `docker compose up`,  `symfony serve`, `ddev start` or `php -S`
   - `status` shows status (web server, containers and etc.);
   - `stop` stops a development web server;
   - `run` runs a program with environment depending on the current context (current machine, `symfony run`, `ddev`, `docker` and etc.);
