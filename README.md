@@ -27,6 +27,18 @@ antigen bundle voronkovich/symfony.plugin.zsh
 zplug "voronkovich/symfony.plugin.zsh"
 ```
 
+[Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh):
+
+```sh
+git clone https://github.com/voronkovich/symfony.plugin.zsh ~/.oh-my-zsh/custom/plugins/symfony
+```
+
+Edit `~/.zshrc` to enable the plugin:
+
+```sh
+plugins=(... symfony)
+```
+
 Or clone this repo and add this into your `.zshrc`:
 
 ```sh
