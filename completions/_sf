@@ -9,11 +9,45 @@ _sf() {
     local cmd=("${words[1]}")
     local subcmd="${line[1]}"
 
+    if [[ "${subcmd}" == 'open' ]]; then
+        return
+    fi
+
     if [[ "${subcmd}" == 'php' ]]; then
         _php && return
     fi
 
-    if [[ "${subcmd}" =~ '^(psql|open)$' ]]; then
+    if [[ "${subcmd}" == 'psql' ]]; then
+        _arguments '*: :' \
+            {-c+,--command=}'[Execute SQL command]' \
+            {-f+,--file=}':SQL file to read:_files' \
+            {-l,--list}'[List databases]' \
+            {-v+,--set=,--variable=}'[Set SQL variable]' \
+            {-V,--version}'[Output version information, then exit]' \
+            {-X,--no-psqlrc}'[Don'\''t read ~/.psqlrc]' \
+            {-1,--single-transaction}'[Restore as a single transaction]' \
+            {-\?,--help=}'[Display help]' \
+            {-a,--echo-all}'[Print commands read]' \
+            {-b,--echo-errors}'[Echo failed commands]' \
+            {-e,--echo-queries}'[Display queries submitted]' \
+            {-E,--echo-hidden}'[Display hidden queries]' \
+            {-L,--log-file=}'[Send session log to file]' \
+            {-n,--no-readline}'[Disable enhanced command line editing (readline)]' \
+            {-o+,--output=}':query output:_files' \
+            {-q,--quiet}'[Non verbose mode]' \
+            {-s,--single-step}'[Prompt before each query]' \
+            {-S,--single-line}'[Newline sends query]' \
+            {-A,--no-align}'[Unaligned output mode]' \
+            --csv'[CSV (Comma-Separated Values) table output mode]' \
+            {-F+,--field-separator=}':field separator char:' \
+            {-H,--html}'[HTML output]' \
+            {-P+,--pset=}':set psql variable:' \
+            {-R+,--record-separator=}'[Record separator char]' \
+            {-t,--tuples-only}'[Don'\''t display header/footer]' \
+            {-T+,--table-attr=}'[HTML table options]' \
+            {-x,--expanded}'[One column per line]' \
+            {-z,--field-separator-zero}'[Set field separator for unaligned output to zero byte]' \
+            {-0,--record-separator-zero}'[Set record separator for unaligned output to zero byte]'
         return
     fi
 
