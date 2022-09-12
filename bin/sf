@@ -288,7 +288,7 @@ console_run() {
         return 1
     fi
 
-    if runner_is 'symfony' && [[ "${app_console}" == 'bin/console' ]]; then
+    if runner_is 'symfony' && console_is_symfony; then
         symfony console "$@"
         return $?
     fi
