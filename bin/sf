@@ -307,7 +307,7 @@ console_env() {
     console_is_symfony || return
 
     console_run debug:container --no-ansi --env-var "${1}" \
-        | sed -nE 's/^\s*Processed value\s+"([^"]+)"/\1/p'
+        | sed -nE -e 's/^[[:space:]]*Processed value[[:space:]]+"([^"]+)"/\1/p'
 }
 
 symfony_cli_enabled() {
