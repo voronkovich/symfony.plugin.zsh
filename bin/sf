@@ -25,9 +25,6 @@ main() {
         open)
             app_open "$@"
             ;;
-        psql)
-            psql_run "$@"
-            ;;
         mails)
             app_mails "$@"
             ;;
@@ -45,6 +42,9 @@ main() {
             ;;
         phive)
             phive_run "$@"
+            ;;
+        psql)
+            psql_run "$@"
             ;;
         *)
             console_run "${cmd}" "$@"
@@ -130,44 +130,6 @@ app_open() {
             open "${SF_OPEN_URL:-http://127.0.0.1:8000}/${urlpath}" 2>/dev/null
             ;;
     esac
-}
-
-psql_run() {
-    case "$(runner_name)" in
-        docker|docker-compose)
-            declare -r database_url="$(psql_database_url)"
-            declare -r service="$(psql_database_host "${database_url}")"
-
-            docker_compose_run exec -- "${service}" psql "${database_url}" "$@"
-            ;;
-        ddev)
-            ddev psql "$@"
-            return $?
-            ;;
-        symfony)
-            if docker_find_compose_file &>/dev/null; then
-                symfony run psql "$@"
-                return $?
-            fi
-            ;&
-        *)
-            declare -r database_url="$(psql_database_url)"
-
-            psql "${database_url}" "$@"
-            ;;
-    esac
-}
-
-psql_database_url() {
-    declare -r database_url="$(console_env DATABASE_URL)"
-
-    echo "${database_url//\?*}"
-}
-
-psql_database_host() {
-    declare host="${1##*//*@}"
-
-    echo "${host%%:*}"
 }
 
 app_mails() {
@@ -314,6 +276,44 @@ console_env() {
 
     console_run debug:container --no-ansi --env-var "${1}" \
         | sed -nE -e 's/^[[:space:]]*Processed value[[:space:]]+"([^"]+)"/\1/p'
+}
+
+psql_run() {
+    case "$(runner_name)" in
+        docker|docker-compose)
+            declare -r database_url="$(psql_database_url)"
+            declare -r service="$(psql_database_host "${database_url}")"
+
+            docker_compose_run exec -- "${service}" psql "${database_url}" "$@"
+            ;;
+        ddev)
+            ddev psql "$@"
+            return $?
+            ;;
+        symfony)
+            if docker_find_compose_file &>/dev/null; then
+                symfony run psql "$@"
+                return $?
+            fi
+            ;&
+        *)
+            declare -r database_url="$(psql_database_url)"
+
+            psql "${database_url}" "$@"
+            ;;
+    esac
+}
+
+psql_database_url() {
+    declare -r database_url="$(console_env DATABASE_URL)"
+
+    echo "${database_url//\?*}"
+}
+
+psql_database_host() {
+    declare host="${1##*//*@}"
+
+    echo "${host%%:*}"
 }
 
 symfony_cli_enabled() {
