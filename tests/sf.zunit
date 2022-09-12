@@ -375,7 +375,6 @@
     assert "${lines[6]}" same_as 'ddev: status'
 }
 
-
 @test 'sf mails: Supported by Symfony CLI' {
     cd "${FIXTURES_PATH}/app"
 
@@ -398,37 +397,26 @@
     assert $output same_as 'ddev: launch -m'
 }
 
-@test 'sf mails: Not supported by "local" runner' {
-    cd "${FIXTURES_PATH}/app"
-
-    export SF_RUNNER=local
-
-    run sf mails
-
-    assert $state equals 1
-    assert $output same_as 'Not supported by current runner: local'
-}
-
-@test 'sf mails: Not supported by Docker' {
+@test 'sf mails: Tries to use Symfony CLI if it is installed for "docker" runner' {
     cd "${FIXTURES_PATH}/app"
 
     export SF_RUNNER='docker compose exec -- symfony'
 
     run sf mails
 
-    assert $state equals 1
-    assert $output same_as 'Not supported by current runner: docker compose exec -- symfony'
+    assert $state equals 0
+    assert $output same_as 'symfony: open:local:webmail'
 }
 
-@test 'sf stop: Not supported for unknown runners' {
+@test 'sf mails: Opens http://localhost:1080 by default' {
     cd "${FIXTURES_PATH}/app"
 
     export SF_RUNNER='zsh -c'
 
     run sf mails
 
-    assert $state equals 1
-    assert $output same_as 'Not supported by current runner: zsh -c'
+    assert $state equals 0
+    assert $output same_as 'open: http://localhost:1080'
 }
 
 @test 'sf psql: Runs locally installed psql by default' {

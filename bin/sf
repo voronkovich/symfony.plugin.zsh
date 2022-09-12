@@ -172,6 +172,12 @@ psql_database_host() {
 
 app_mails() {
     case "$(runner_name)" in
+        docker|docker-compose)
+            if (( $+commands[symfony] )); then
+                symfony open:local:webmail "$@"
+                return $?
+            fi
+            ;&
         ddev)
             ddev launch -m "$@" 2>/dev/null
             ;;
@@ -179,7 +185,7 @@ app_mails() {
             symfony open:local:webmail "$@"
             ;;
         *)
-            runner_not_supported
+            open 'http://localhost:1080' 2>/dev/null
             ;;
     esac
 }
