@@ -1,3 +1,26 @@
 #!/usr/bin/env zsh
 
+if [[ "$*" =~ 'debug:container.*--env-var DATABASE_URL' ]]; then
+    cat <<OUTPUT
+
+Symfony Container Environment Variables
+=======================================
+
+ // Displaying detailed environment variable usage matching DATABASE_URL        
+
+%env(resolve:DATABASE_URL)%
+---------------------------
+
+ ----------------- ------------------------------------------------------------------ 
+  Default value     n/a                                                               
+  Real value        "postgresql://app:!ChangeMe!@database:5432/app?serverVersion=14"  
+  Processed value   "postgresql://app:!ChangeMe!@database:5432/app?serverVersion=14"  
+ ----------------- ------------------------------------------------------------------ 
+
+ // Note real values might be different between web and CLI.                    
+
+OUTPUT
+    return
+fi
+
 echo "docker-compose: $@"

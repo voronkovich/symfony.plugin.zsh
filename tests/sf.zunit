@@ -439,7 +439,7 @@
     run sf psql
 
     assert $state equals 0
-    assert $output same_as 'psql: '
+    assert $output same_as 'psql: postgresql://app:!ChangeMe!@database:5432/app'
 }
 
 @test 'sf psql: Supported by Symfony CLI only if docker-compose file presents' {
@@ -462,6 +462,17 @@
 
     assert $state equals 0
     assert $output same_as 'ddev: psql'
+}
+
+@test 'sf psql: Supported by Docker' {
+    cd "${FIXTURES_PATH}/app"
+
+    export SF_RUNNER='docker-compose exec -- app'
+
+    run sf psql
+
+    assert $state equals 0
+    assert $output same_as 'docker-compose: exec -- database psql postgresql://app:!ChangeMe!@database:5432/app'
 }
 
 @test 'sf run: Runs comnnand using configured runner' {

@@ -146,13 +146,29 @@ psql_run() {
             ;;
     esac
 
-    psql "$(psql_database_url)" "$@"
+    declare -r database_url="$(psql_database_url)"
+
+    if runner_is 'docker' || runner_is 'docker-compose'; then
+        declare -r service="$(psql_database_host "${database_url}")"
+
+        docker_compose_run exec -- "${service}" psql "${database_url}" "$@"
+
+        return $?
+    fi
+
+    psql "${database_url}" "$@"
 }
 
 psql_database_url() {
     declare -r database_url="$(console_env DATABASE_URL)"
 
     echo "${database_url//\?*}"
+}
+
+psql_database_host() {
+    declare host="${1##*//*@}"
+
+    echo "${host%%:*}"
 }
 
 app_mails() {
@@ -312,6 +328,12 @@ docker_find_compose_file() {
         "${PWD}/docker-compose.yml" \
         "${PWD}/docker-compose.yaml" \
     ;
+}
+
+docker_compose_run() {
+    declare -ar cmd=( $(docker_compose_command) )
+
+    "${cmd[@]}" "$@"
 }
 
 docker_compose_command() {

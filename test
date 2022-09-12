@@ -1,7 +1,3 @@
-#!/usr/bin/env zsh
-
-if [[ "$*" =~ 'debug:container.*--env-var DATABASE_URL' ]]; then
-    cat <<OUTPUT
 
 Symfony Container Environment Variables
 =======================================
@@ -19,8 +15,3 @@ Symfony Container Environment Variables
 
  // Note real values might be different between web and CLI.                    
 
-OUTPUT
-    return
-fi
-
-echo "php: $@"
