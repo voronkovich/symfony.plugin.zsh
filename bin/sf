@@ -137,7 +137,7 @@ app_mails() {
         docker|docker-compose)
             if (( $+commands[symfony] )); then
                 symfony open:local:webmail "$@"
-                return $?
+                return
             fi
             ;&
         ddev)
@@ -155,7 +155,7 @@ app_mails() {
 run() {
     if runner_is 'symfony'; then
         symfony run "$@"
-        return $?
+        return
     fi
 
     runner_run "$@"
@@ -164,7 +164,7 @@ run() {
 php_run() {
     if runner_is 'symfony'; then
         symfony php "$@"
-        return $?
+        return
     fi
 
     runner_run php "$@"
@@ -173,7 +173,7 @@ php_run() {
 composer_run() {
     if runner_is 'symfony'; then
         symfony composer "$@"
-        return $?
+        return
     fi
 
     runner_run composer "$@"
@@ -184,7 +184,7 @@ phpunit_run() {
 
     if [[ -n "${phpunit}" ]]; then
         php_run "${phpunit}" "$@"
-        return $?
+        return
     fi
 
     run phpunit "$@"
@@ -218,7 +218,7 @@ phive_run() {
 
     if [[ -n "${phive}" ]]; then
         php_run "${phive}" "$@"
-        return $?
+        return
     fi
 
     run phive "$@"
@@ -257,7 +257,7 @@ console_run() {
 
     if runner_is 'symfony' && console_is_symfony; then
         symfony console "$@"
-        return $?
+        return
     fi
 
     runner_run php "${app_console}" "$@"
@@ -288,12 +288,12 @@ psql_run() {
             ;;
         ddev)
             ddev psql "$@"
-            return $?
+            return
             ;;
         symfony)
             if docker_find_compose_file &>/dev/null; then
                 symfony run psql "$@"
-                return $?
+                return
             fi
             ;&
         *)
