@@ -446,7 +446,7 @@ config_load_env_files() {
 
 config_process_envs() {
     grep -E '^[[:space:]]*SF_\w+=' | while IFS='=' read -r key value; do
-        export "${key}"="$(unquote <<<"${value}")"
+        export "${key}"="$(unquote "${value}")"
     done
 }
 
@@ -474,7 +474,9 @@ error() {
 }
 
 unquote() {
-    sed -Ee "s/^\"|'//" -e "s/\"|'$//"
+    declare -r val="${1#['\"]}"
+
+    echo "${val%['\"]}"
 }
 
 main "$@"
