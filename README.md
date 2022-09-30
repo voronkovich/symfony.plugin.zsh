@@ -14,7 +14,7 @@ A zsh plugin for the [Symfony](https://symfony.com/) PHP framework.
 
 ## Installation
 
-If yout need an autocompletion, please, install [symfony-complete.plugin.zsh](https://github.com/voronkovich/symfony-complete.plugin.zsh) first.
+If you need an autocompletion, please, install [symfony-complete.plugin.zsh](https://github.com/voronkovich/symfony-complete.plugin.zsh) first.
 
 ### [Antigen](https://github.com/zsh-users/antigen)
 
